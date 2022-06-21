@@ -1,0 +1,18 @@
+{
+  "name": "eionet2-process_data",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bin/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/msal-node": "^1.10.0",
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "yargs": "^17.5.1"
+  }
+}
