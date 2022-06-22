@@ -5,10 +5,9 @@ require('dotenv').config();
 
 const yargs = require('yargs');
 
-const provider = require('./provider');
-const auth = require('./auth');
-const processor = require('./meetingProcessor');
-const { config } = require('yargs');
+const provider = require('./src/provider');
+const auth = require('./src/auth');
+const processor = require('./src/meetingProcessor');
 
 const options = yargs
     .usage('Usage: --op <operation_name>')

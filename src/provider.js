@@ -50,7 +50,33 @@ async function apiPost(endpoint, accessToken, data) {
     }
 };
 
+
+async function apiPatch(endpoint, accessToken, data) {
+
+    const options = {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    };
+
+    try {
+        const response = await axios.default.patch(endpoint, data, options);
+        return {
+            success: true,
+            data: response.data
+        }
+            ;
+    } catch (error) {
+        console.log(error)
+        return {
+            success: false,
+            error: error
+        }
+    }
+};
+
 module.exports = {
     apiGet: apiGet,
-    apiPost: apiPost
+    apiPost: apiPost,
+    apiPatch: apiPatch
 };
