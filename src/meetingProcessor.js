@@ -76,11 +76,12 @@ async function processMeeting(meeting, configuration, authResponse) {
                     console.log(attendanceReportsResponse.error);
                     return attendanceReportsResponse.error;
                 }
-            } else {
-                console.log(meetingResponse.error);
-                return meetingResponse.error;
             }
+        } else {
+            console.log(meetingResponse.error);
+            return meetingResponse.error;
         }
+
     }
 };
 
@@ -105,8 +106,7 @@ async function processRecord(configuration, meetingFields, record, accessToken) 
                     MeetingtitleLookupId: meetingFields.id,
                     EMail: record.emailAddress,
                     Participated: true,
-                    ...userData && { 'EionetGroup@odata.type': 'Collection(Edm.String)' },
-                    ...userData && { EionetGroup: spUserData.fields.Membership },
+                    ...meetingFields.Group && { EionetGroup: meetingFields.Group },
                 }
             }
 
