@@ -3,16 +3,11 @@
 // read in env settings
 require('dotenv').config();
 
-const yargs = require('yargs');
-
 const provider = require('./src/provider');
 const auth = require('./src/auth');
-const processor = require('./src/meetingProcessor');
-
-const options = yargs
-    .usage('Usage: --op <operation_name>')
-    .option('op', { alias: 'operation', describe: 'operation name', type: 'string', demandOption: true })
-    .argv;
+const meetingProcessor = require('./src/meetingProcessor'),
+    userNamesProcessor = require('./src/userNamesProcessor'),
+    signedInUsersProcessor = require('./src/signedInUsersProcessor');
 
 async function getConfiguration(accessToken) {
     const configListId = process.env.CONFIGURATION_LIST_ID;
@@ -32,33 +27,14 @@ async function getConfiguration(accessToken) {
     }
 }
 
-
 async function main() {
-    console.log(`You have selected: ${options.op}`);
-
-    switch (yargs.argv['op']) {
-        case 'getMeetings':
-            try {
-
-                // here we get an access token
-                const authResponse = await auth.getToken(auth.tokenRequest),
-                    configuration = await getConfiguration(authResponse.accessToken);
-
-                if (configuration) {
-                    await processor.processMeetings(configuration, authResponse);
-                }
-                else {
-                    console.log("Unable to load configuration");
-                }
-
-                console.log("Meetings processing finalized");
-            } catch (error) {
-                console.log(error);
-            }
-            break;
-        default:
-            console.log('Select a Graph operation first');
-            break;
+    // here we get an access token
+    const authResponse = await auth.getToken(auth.tokenRequest),
+        configuration = await getConfiguration(authResponse.accessToken);
+    if (configuration) {
+        await meetingProcessor.processMeetings(configuration, authResponse);
+        await signedInUsersProcessor.processSignedInUsers(configuration, authResponse);
+        await userNamesProcessor.processUsers(configuration, authResponse);
     }
 };
 
