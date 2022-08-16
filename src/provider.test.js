@@ -11,5 +11,5 @@ test('should fetch users', () => {
   // or you could use the following depending on your use case:
   // axios.get.mockImplementation(() => Promise.resolve(resp))
 
-  return provider.apiGet().then(data => expect(data.data).toEqual(users));
+  return provider.apiGet().then((data) => expect(data.data).toEqual(users));
 });
