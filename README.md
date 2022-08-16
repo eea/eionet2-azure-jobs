@@ -3,8 +3,9 @@
 [![GitHub release](https://img.shields.io/github/v/release/eea/eionet2-teams-data)](https://github.com/eea/eionet2-teams-data/releases)
 
 This Eionet 2.0 application implements the following features:
-- Retrieve the meeting participants automatically from a SharePoint list
-- Use the participants and the meeting data to create meeting statistics
+- Retrieve the meeting information from a Sharepoint list (Meetings List)
+- Use the meeting information to query the meeting participation on behalf of the meeting organiser
+- Create meeting statistics in the meeting participants list
 
 The app is available to the designated Eionet Admin roles.
 
