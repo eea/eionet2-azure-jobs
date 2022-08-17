@@ -1,6 +1,6 @@
-# eionet2-teams-data
+# eionet2-azure-jobs
 
-[![GitHub release](https://img.shields.io/github/v/release/eea/eionet2-teams-data)](https://github.com/eea/eionet2-teams-data/releases)
+[![GitHub release](https://img.shields.io/github/v/release/eea/eionet2-azure-jobs)](https://github.com/eea/eionet2-azure-jobs/releases)
 
 This Eionet 2.0 application implements the following features:
 - Retrieve the meeting information from a Sharepoint list (Meetings List)
@@ -17,7 +17,7 @@ The output information is used for various reports, such as NFP dashboard and st
 
 ## Release
 
-See [RELEASE.md](https://github.com/eea/eionet2-teams-data/blob/master/RELEASE.md).
+See [RELEASE.md](https://github.com/eea/eionet2-azure-jobs/blob/master/RELEASE.md).
 
 ## How to contribute
 

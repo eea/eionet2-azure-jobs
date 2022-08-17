@@ -1,7 +1,7 @@
 {
-  "name": "eionet2-azure-jobs",
-  "version": "1.0.2",
-  "description": "",
+  "name": "@eeacms/eionet2-azure-jobs",
+  "version": "1.0.3",
+  "description": "[![GitHub release](https://img.shields.io/github/v/release/eea/eionet2-azure-jobs)](https://github.com/eea/eionet2-azure-jobs/releases)",
   "main": "index.js",
   "devDependencies": {
     "eslint": "^8.17.0",
@@ -20,19 +20,27 @@
   "scripts": {
     "stylelint": "node_modules/stylelint/bin/stylelint.js --allow-empty-input 'src/**/*.{css,less}'",
     "stylelint:fix": "yarn stylelint --fix",
-    "prettier": "node_modules/.bin/prettier --single-quote --check 'src/**/*.{js,jsx,json,css,less,md}'",
-    "prettier:fix": "node_modules/.bin/prettier --single-quote --write 'src/**/*.{js,jsx,json,css,less,md}'",
+    "prettier": "prettier --single-quote --check 'src/**/*.{js,jsx,json,css,less,md}'",
+    "prettier:fix": "prettier --single-quote --write 'src/**/*.{js,jsx,json,css,less,md}'",
     "lint": "node_modules/eslint/bin/eslint.js --max-warnings=0 'src/**/*.{js,jsx}'",
     "lint:fix": "node_modules/eslint/bin/eslint.js --fix 'src/**/*.{js,jsx}'",
     "test": "jest --watchAll=false --reporters=default --reporters=jest-junit --collectCoverage --coverageReporters lcov cobertura text 2>&1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Mihai Nicolae",
+  "license": "MIT",
   "dependencies": {
     "@azure/msal-node": "^1.10.0",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
     "yargs": "^17.5.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eea/eionet2-azure-jobs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eea/eionet2-azure-jobs/issues"
+  },
+  "homepage": "https://github.com/eea/eionet2-azure-jobs#readme"
 }

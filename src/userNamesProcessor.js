@@ -9,7 +9,7 @@ async function processUsers(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'UserNameUpdates - number of recors loaded: ' + users.length
+      'UserNameUpdates - number of records loaded: ' + users.length
     );
     users.forEach(async (user) => {
       await processUser(user, configuration, authResponse);
