@@ -1,7 +1,14 @@
 const axios = require('axios'),
   auth = require('./auth');
 
-async function info(configuration, accessToken, message, apiPath, data, jobName) {
+async function info(
+  configuration,
+  accessToken,
+  message,
+  apiPath,
+  data,
+  jobName
+) {
   console.log(message);
   const options = {
     headers: {

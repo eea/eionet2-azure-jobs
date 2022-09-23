@@ -14,7 +14,6 @@ async function apiGet(endpoint, accessToken) {
       data: response.data,
     };
   } catch (error) {
-
     return {
       success: false,
       error: error,

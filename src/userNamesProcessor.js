@@ -10,7 +10,10 @@ async function processUsers(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'UserNameUpdates - number of records loaded: ' + users.length, '', {}, jobName
+      'UserNameUpdates - number of records loaded: ' + users.length,
+      '',
+      {},
+      jobName
     );
     users.forEach(async (user) => {
       await processUser(user, configuration, authResponse);
@@ -27,11 +30,11 @@ async function loadUsers(listId, authResponse) {
 
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri +
-    'lists/' +
-    listId +
-    "/items?$expand=fields&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
-    filterDate +
-    "'",
+      'lists/' +
+      listId +
+      "/items?$expand=fields&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
+      filterDate +
+      "'",
     authResponse.accessToken
   );
   if (response.success) {
@@ -67,9 +70,9 @@ async function processUser(user, configuration, authResponse) {
 async function getADUser(configuration, userId, accessToken) {
   const adResponse = await provider.apiGet(
     auth.apiConfig.uri +
-    "/users/?$filter=id eq '" +
-    userId +
-    "'&$select=id,displayName,givenName,surname,country",
+      "/users/?$filter=id eq '" +
+      userId +
+      "'&$select=id,displayName,givenName,surname,country",
     accessToken
   );
   if (adResponse.success && adResponse.data.value.length) {
@@ -99,7 +102,9 @@ async function patchUser(userId, displayName, configuration, accessToken) {
         configuration,
         accessToken,
         'UserNameUpdates - user with the following id was updated: ' + userId,
-        '', {}, jobName
+        '',
+        {},
+        jobName
       );
       return response.data;
     } else {

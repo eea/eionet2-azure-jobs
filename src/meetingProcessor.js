@@ -13,8 +13,10 @@ async function processMeetings(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'UpdateMeetingParticipants - number of meetings to process: ' + meetings.length,
-      '', {},
+      'UpdateMeetingParticipants - number of meetings to process: ' +
+        meetings.length,
+      '',
+      {},
       jobName
     );
     meetings.forEach(async (meeting) => {
@@ -29,9 +31,9 @@ async function processMeetings(configuration, authResponse) {
 async function loadMeetings(meetingListId, authResponse) {
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri +
-    'lists/' +
-    meetingListId +
-    '/items?$expand=fields',
+      'lists/' +
+      meetingListId +
+      '/items?$expand=fields',
     authResponse.accessToken
   );
   if (response.success) {
@@ -50,11 +52,11 @@ async function processMeeting(meeting, configuration, authResponse) {
     const meetingUrl = meetingFields.Meetinglink.Url,
       meetingResponse = await provider.apiGet(
         apiRoot +
-        'users/' +
-        userId +
-        "/onlineMeetings?$filter=JoinWebUrl eq '" +
-        meetingUrl +
-        "'",
+          'users/' +
+          userId +
+          "/onlineMeetings?$filter=JoinWebUrl eq '" +
+          meetingUrl +
+          "'",
         authResponse.accessToken
       ),
       processedReports = meetingFields.Processedreports
@@ -67,11 +69,11 @@ async function processMeeting(meeting, configuration, authResponse) {
       //load all attendance reports for meeting
       const attendanceReportsResponse = await provider.apiGet(
         apiRoot +
-        'users/' +
-        userId +
-        '/onlineMeetings/' +
-        meetingId +
-        '/attendanceReports',
+          'users/' +
+          userId +
+          '/onlineMeetings/' +
+          meetingId +
+          '/attendanceReports',
         authResponse.accessToken
       );
 
@@ -88,13 +90,13 @@ async function processMeeting(meeting, configuration, authResponse) {
             for (const report of filteredReports) {
               const reportDetailsResponse = await provider.apiGet(
                 apiRoot +
-                'users/' +
-                userId +
-                '/onlineMeetings/' +
-                meetingId +
-                '/attendanceReports/' +
-                report.id +
-                '?$expand=attendanceRecords',
+                  'users/' +
+                  userId +
+                  '/onlineMeetings/' +
+                  meetingId +
+                  '/attendanceReports/' +
+                  report.id +
+                  '?$expand=attendanceRecords',
                 authResponse.accessToken
               );
               if (reportDetailsResponse.success) {
@@ -202,10 +204,10 @@ async function processAttendanceRecord(
       };
 
       const path =
-        auth.apiConfigWithSite.uri +
-        'lists/' +
-        configuration.MeetingPartcipantsListId +
-        '/items',
+          auth.apiConfigWithSite.uri +
+          'lists/' +
+          configuration.MeetingPartcipantsListId +
+          '/items',
         response = await provider.apiPost(path, accessToken, record2Save);
 
       return response.success;
@@ -278,11 +280,11 @@ async function patchMeeting(
 ) {
   try {
     const path =
-      auth.apiConfigWithSite.uri +
-      'lists/' +
-      configuration.MeetingListId +
-      '/items/' +
-      meetingId,
+        auth.apiConfigWithSite.uri +
+        'lists/' +
+        configuration.MeetingListId +
+        '/items/' +
+        meetingId,
       response = await provider.apiPatch(path, accessToken, {
         fields: {
           Processedreports: processedReports.join('#'),

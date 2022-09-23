@@ -12,7 +12,9 @@ async function processSignedInUsers(configuration, authResponse) {
       configuration,
       authResponse.accessToken,
       'UpdateSignedInUsers - number of records loaded: ' + users.length,
-      '', {}, jobName
+      '',
+      {},
+      jobName
     );
     users.forEach(async (user) => {
       await processUser(user, configuration, authResponse);
@@ -26,9 +28,9 @@ async function processSignedInUsers(configuration, authResponse) {
 async function loadUsers(listId, authResponse) {
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri +
-    'lists/' +
-    listId +
-    '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq null or fields/SignedIn eq 0',
+      'lists/' +
+      listId +
+      '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq null or fields/SignedIn eq 0',
     authResponse.accessToken
   );
   if (response.success) {
@@ -52,9 +54,9 @@ async function processUser(user, configuration, authResponse) {
 
       const response = await provider.apiGet(
         apiRoot +
-        "/reports/credentialUserRegistrationDetails?$filter=userDisplayName eq '" +
-        adUser.displayName +
-        "'",
+          "/reports/credentialUserRegistrationDetails?$filter=userDisplayName eq '" +
+          adUser.displayName +
+          "'",
         authResponse.accessToken
       );
       if (response.success && response.data.value.length) {
@@ -74,7 +76,10 @@ async function processUser(user, configuration, authResponse) {
             configuration,
             authResponse.accessToken,
             'UpdateSignedInUsers - user with the following id marked as signedIn: ' +
-            userFields.id, '', {}, jobName
+              userFields.id,
+            '',
+            {},
+            jobName
           );
           patchSPUser(
             userFields.id,
@@ -98,9 +103,9 @@ async function getADUser(configuration, userId, accessToken) {
   try {
     const adResponse = await provider.apiGet(
       auth.apiConfig.uri +
-      "/users/?$filter=id eq '" +
-      userId +
-      "'&$select=id,displayName,userType,externalUserState,externalUserStateChangeDateTime",
+        "/users/?$filter=id eq '" +
+        userId +
+        "'&$select=id,displayName,userType,externalUserState,externalUserStateChangeDateTime",
       accessToken
     );
     if (adResponse.success && adResponse.data.value.length) {
@@ -117,11 +122,11 @@ async function getADUser(configuration, userId, accessToken) {
 async function patchSPUser(userId, userData, configuration, accessToken) {
   try {
     const path =
-      auth.apiConfigWithSite.uri +
-      'lists/' +
-      configuration.UserListId +
-      '/items/' +
-      userId,
+        auth.apiConfigWithSite.uri +
+        'lists/' +
+        configuration.UserListId +
+        '/items/' +
+        userId,
       response = await provider.apiPatch(path, accessToken, {
         fields: {
           SignedIn: userData.SignedIn,
