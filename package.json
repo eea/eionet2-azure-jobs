@@ -27,7 +27,6 @@
     "test": "jest --watchAll=false --reporters=default --reporters=jest-junit --collectCoverage --coverageReporters lcov cobertura text 2>&1"
   },
   "keywords": [],
-  "author": "Mihai Nicolae",
   "license": "MIT",
   "dependencies": {
     "@azure/msal-node": "^1.10.0",
