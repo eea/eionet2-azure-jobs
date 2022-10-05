@@ -1,37 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="13" failures="0" errors="0" time="0.822">
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:17" time="0.289" tests="3">
-    <testcase classname=" processMeetings" name=" processMeetings" time="0.014">
+<testsuites name="jest tests" tests="12" failures="0" errors="0" time="0.674">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.279" tests="3">
+    <testcase classname=" processMeetings" name=" processMeetings" time="0.013">
     </testcase>
     <testcase classname=" processMeetings" name=" processMeetings" time="0.001">
     </testcase>
     <testcase classname=" processMeetings" name=" processMeetings" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:18" time="0.276" tests="3">
-    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.005">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.131" tests="2">
+    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.004">
     </testcase>
-    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.002">
-    </testcase>
-    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.01">
+    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:18" time="0.083" tests="2">
-    <testcase classname=" processUsers" name=" processUsers" time="0.003">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.075" tests="2">
+    <testcase classname=" processUsers" name=" processUsers" time="0.002">
     </testcase>
-    <testcase classname=" processUsers" name=" processUsers" time="0">
+    <testcase classname=" processUsers" name=" processUsers" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:18" time="0.053" tests="3">
-    <testcase classname=" fetch" name=" fetch" time="0">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.061" tests="3">
+    <testcase classname=" fetch" name=" fetch" time="0.001">
     </testcase>
     <testcase classname=" post" name=" post" time="0">
     </testcase>
-    <testcase classname=" patch" name=" patch" time="0">
+    <testcase classname=" patch" name=" patch" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:18" time="0.049" tests="2">
-    <testcase classname=" info" name=" info" time="0.001">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.052" tests="2">
+    <testcase classname=" info" name=" info" time="0">
     </testcase>
     <testcase classname=" error" name=" error" time="0">
     </testcase>
