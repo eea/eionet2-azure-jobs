@@ -1,7 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="1" failures="0" errors="0" time="0.308">
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-08-16T14:36:46" time="0.275" tests="1">
-    <testcase classname=" should fetch users" name=" should fetch users" time="0.002">
+<testsuites name="jest tests" tests="13" failures="0" errors="0" time="0.822">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:17" time="0.289" tests="3">
+    <testcase classname=" processMeetings" name=" processMeetings" time="0.014">
+    </testcase>
+    <testcase classname=" processMeetings" name=" processMeetings" time="0.001">
+    </testcase>
+    <testcase classname=" processMeetings" name=" processMeetings" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:18" time="0.276" tests="3">
+    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.005">
+    </testcase>
+    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.002">
+    </testcase>
+    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:18" time="0.083" tests="2">
+    <testcase classname=" processUsers" name=" processUsers" time="0.003">
+    </testcase>
+    <testcase classname=" processUsers" name=" processUsers" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:18" time="0.053" tests="3">
+    <testcase classname=" fetch" name=" fetch" time="0">
+    </testcase>
+    <testcase classname=" post" name=" post" time="0">
+    </testcase>
+    <testcase classname=" patch" name=" patch" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T07:38:18" time="0.049" tests="2">
+    <testcase classname=" info" name=" info" time="0.001">
+    </testcase>
+    <testcase classname=" error" name=" error" time="0">
     </testcase>
   </testsuite>
 </testsuites>

@@ -38,8 +38,9 @@ async function loadMeetings(meetingListId, authResponse) {
   );
   if (response.success) {
     return response.data.value;
+  } else {
+    return [];
   }
-  return [];
 }
 
 //Main function for processing meeting record in sharepoint list
