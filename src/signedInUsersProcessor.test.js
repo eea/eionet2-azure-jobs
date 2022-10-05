@@ -1,6 +1,4 @@
 const axios = require('axios');
-const msal = require('@azure/msal-node');
-const auth = require('./auth');
 const processor = require('./signedInUsersProcessor');
 
 jest.mock('axios');
@@ -11,12 +9,7 @@ test('processSignedInUsers', () => {
   const authResponse = {
     accessToken: {},
   };
-  const resp = { success: true };
-  const configuration = {
-    MeetingListId: '',
-    MeetingLoggingId: '',
-    MeetingParticipantsListId: '',
-  };
+
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -93,12 +86,7 @@ test('processSignedInUsers', () => {
   const authResponse = {
     accessToken: {},
   };
-  const resp = { success: true };
-  const configuration = {
-    MeetingListId: '',
-    MeetingLoggingId: '',
-    MeetingParticipantsListId: '',
-  };
+
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -155,12 +143,7 @@ test('processSignedInUsers', () => {
   const authResponse = {
     accessToken: {},
   };
-  const resp = { success: true };
-  const configuration = {
-    MeetingListId: '',
-    MeetingLoggingId: '',
-    MeetingParticipantsListId: '',
-  };
+
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {

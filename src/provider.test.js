@@ -12,7 +12,6 @@ test('fetch', () => {
 });
 
 test('post', () => {
-  const user = { name: 'Bob' };
   const resp = { success: true };
   axios.post.mockResolvedValue(resp);
 
@@ -20,7 +19,6 @@ test('post', () => {
 });
 
 test('patch', () => {
-  const user = { name: 'Bob' };
   const resp = { success: true };
   axios.patch.mockResolvedValue(resp);
 

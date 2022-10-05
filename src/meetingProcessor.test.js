@@ -1,6 +1,4 @@
 const axios = require('axios');
-const msal = require('@azure/msal-node');
-const auth = require('./auth');
 const processor = require('./meetingProcessor');
 
 jest.mock('axios');
