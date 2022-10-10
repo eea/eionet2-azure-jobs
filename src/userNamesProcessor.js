@@ -30,11 +30,11 @@ async function loadUsers(listId, authResponse) {
 
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri +
-      'lists/' +
-      listId +
-      "/items?$expand=fields&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
-      filterDate +
-      "'",
+    'lists/' +
+    listId +
+    "/items?$expand=fields&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
+    filterDate +
+    "'",
     authResponse.accessToken
   );
   if (response.success) {
@@ -70,9 +70,9 @@ async function processUser(user, configuration, authResponse) {
 async function getADUser(configuration, userId, accessToken) {
   const adResponse = await provider.apiGet(
     auth.apiConfig.uri +
-      "/users/?$filter=id eq '" +
-      userId +
-      "'&$select=id,displayName,givenName,surname,country",
+    "/users/?$filter=id eq '" +
+    userId +
+    "'&$select=id,displayName,givenName,surname,country",
     accessToken
   );
   if (adResponse.success && adResponse.data.value.length) {
@@ -83,11 +83,21 @@ async function getADUser(configuration, userId, accessToken) {
 
 //Construct correct displayName for user
 function buildDisplayName(adUser, spUser) {
-  let displayName = spUser.Title + ' (' + adUser.country + ')';
-  if (spUser.NFP) {
-    displayName = spUser.Title + ' (NFP-' + adUser.country + ')';
+  if (adUser.country) {
+    let displayName = spUser.Title + ' (' + adUser.country + ')';
+    if (spUser.NFP) {
+      displayName = spUser.Title + ' (NFP-' + adUser.country + ')';
+    }
+    return displayName;
+  } else if (spUser.Country) {
+    let displayName = spUser.Title + ' (' + spUser.Country + ')';
+    if (spUser.NFP) {
+      displayName = spUser.Title + ' (NFP-' + spUser.Country + ')';
+    }
+    return displayName;
+  } else {
+    return spUser.Title;
   }
-  return displayName;
 }
 
 //Update AD user display name
