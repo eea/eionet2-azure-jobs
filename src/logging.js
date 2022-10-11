@@ -1,7 +1,14 @@
 const axios = require('axios'),
   auth = require('./auth');
 
-async function info(configuration, accessToken, message, apiPath, data) {
+async function info(
+  configuration,
+  accessToken,
+  message,
+  apiPath,
+  data,
+  jobName
+) {
   console.log(message);
   const options = {
     headers: {
@@ -10,7 +17,7 @@ async function info(configuration, accessToken, message, apiPath, data) {
   };
   let fields = {
     fields: {
-      ApplicationName: 'Eionet2-Azure-Jobs',
+      ApplicationName: jobName || 'Eionet2-Azure-Jobs',
       ApiPath: apiPath,
       ApiData: JSON.stringify(data),
       Title: message,
@@ -39,7 +46,7 @@ async function info(configuration, accessToken, message, apiPath, data) {
   }
 }
 
-async function error(configuration, accessToken, error, apiPath, data) {
+async function error(configuration, accessToken, error, jobName) {
   console.log(error);
   const options = {
     headers: {
@@ -48,9 +55,8 @@ async function error(configuration, accessToken, error, apiPath, data) {
   };
   let fields = {
     fields: {
-      ApplicationName: 'Eionet2-Azure-Jobs',
-      ApiPath: apiPath,
-      ApiData: JSON.stringify(data),
+      ApplicationName: jobName || 'Eionet2-Azure-Jobs',
+      ApiData: JSON.stringify(error),
       Title: error.toString(),
       Logtype: 'Error',
       Timestamp: new Date(),

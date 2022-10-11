@@ -3,13 +3,24 @@ const provider = require('./provider');
 
 jest.mock('axios');
 
-test('should fetch users', () => {
+test('fetch', () => {
   const users = [{ name: 'Bob' }];
   const resp = { data: users };
   axios.get.mockResolvedValue(resp);
 
-  // or you could use the following depending on your use case:
-  // axios.get.mockImplementation(() => Promise.resolve(resp))
-
   return provider.apiGet().then((data) => expect(data.data).toEqual(users));
+});
+
+test('post', () => {
+  const resp = { success: true };
+  axios.post.mockResolvedValue(resp);
+
+  return provider.apiPost().then((data) => expect(data.success).toEqual(true));
+});
+
+test('patch', () => {
+  const resp = { success: true };
+  axios.patch.mockResolvedValue(resp);
+
+  return provider.apiPatch().then((data) => expect(data.success).toEqual(true));
 });

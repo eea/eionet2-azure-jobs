@@ -1,6 +1,7 @@
 const provider = require('./provider'),
   logging = require('./logging'),
-  auth = require('./auth');
+  auth = require('./auth'),
+  jobName = 'UpdateMeetingParticipants';
 
 //Entry point function for meeting processing functionality
 async function processMeetings(configuration, authResponse) {
@@ -12,19 +13,17 @@ async function processMeetings(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'UpdateMeetingParticiants - number of meetings to process: ' +
-        meetings.length
+      'UpdateMeetingParticipants - number of meetings to process: ' +
+        meetings.length,
+      '',
+      {},
+      jobName
     );
     meetings.forEach(async (meeting) => {
       await processMeeting(meeting, configuration, authResponse);
     });
-    await logging.info(
-      configuration,
-      authResponse.accessToken,
-      'UpdateMeetingParticiants - job ended'
-    );
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error);
+    logging.error(configuration, authResponse.accessToken, error, jobName);
     return error;
   }
 }
@@ -39,8 +38,9 @@ async function loadMeetings(meetingListId, authResponse) {
   );
   if (response.success) {
     return response.data.value;
+  } else {
+    return [];
   }
-  return [];
 }
 
 //Main function for processing meeting record in sharepoint list
@@ -126,23 +126,43 @@ async function processMeeting(meeting, configuration, authResponse) {
               authResponse.accessToken
             );
           }
+        } else {
+          await logging.info(
+            configuration,
+            authResponse.accessToken,
+            'UpdateMeetingParticipants - No attendance records found',
+            '',
+            meetingFields,
+            jobName
+          );
         }
       } else {
-        logging.error(
+        await logging.error(
           configuration,
           authResponse.accessToken,
-          attendanceReportsResponse.error
+          attendanceReportsResponse.error,
+          jobName
         );
         return attendanceReportsResponse.error;
       }
     } else {
-      logging.error(
+      await logging.error(
         configuration,
         authResponse.accessToken,
-        meetingResponse.error
+        meetingResponse.error,
+        jobName
       );
       return meetingResponse.error;
     }
+  } else {
+    await logging.info(
+      configuration,
+      authResponse.accessToken,
+      'UpdateMeetingParticipants - Missing meeting link',
+      '',
+      meetingFields,
+      jobName
+    );
   }
 }
 
@@ -196,7 +216,7 @@ async function processAttendanceRecord(
       return true;
     }
   } catch (error) {
-    logging.error(configuration, accessToken, error);
+    logging.error(configuration, accessToken, error, jobName);
     return false;
   }
 }
@@ -213,7 +233,7 @@ async function getUserByMail(configuration, email, accessToken) {
     }
     return undefined;
   } catch (error) {
-    logging.error(configuration, accessToken, error);
+    logging.error(configuration, accessToken, error, jobName);
     return undefined;
   }
 }
@@ -247,7 +267,7 @@ async function getParticipant(
 
     return undefined;
   } catch (error) {
-    logging.error(configuration, accessToken, error);
+    logging.error(configuration, accessToken, error, jobName);
     return undefined;
   }
 }
@@ -277,7 +297,7 @@ async function patchMeeting(
 
     return undefined;
   } catch (error) {
-    logging.error(configuration, accessToken, error);
+    logging.error(configuration, accessToken, error, jobName);
     return undefined;
   }
 }

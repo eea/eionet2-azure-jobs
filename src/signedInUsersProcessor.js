@@ -1,6 +1,7 @@
 const logging = require('./logging'),
   provider = require('./provider'),
-  auth = require('./auth');
+  auth = require('./auth'),
+  jobName = 'UpdateSignedInUsers';
 
 //Entry point function for processing users that have signed it in Eionet
 async function processSignedInUsers(configuration, authResponse) {
@@ -10,19 +11,16 @@ async function processSignedInUsers(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'UpdateSignedInUsers - number of records loaded: ' + users.length
+      'UpdateSignedInUsers - number of records loaded: ' + users.length,
+      '',
+      {},
+      jobName
     );
     users.forEach(async (user) => {
       await processUser(user, configuration, authResponse);
     });
-
-    await logging.info(
-      configuration,
-      authResponse.accessToken,
-      'UpdateSignedInUsers - job ended'
-    );
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error);
+    logging.error(configuration, authResponse.accessToken, error, jobName);
     return error;
   }
 }
@@ -54,46 +52,61 @@ async function processUser(user, configuration, authResponse) {
         authResponse.accessToken
       );
 
-      const response = await provider.apiGet(
-        apiRoot +
-          "/reports/credentialUserRegistrationDetails?$filter=userDisplayName eq '" +
-          adUser.displayName +
-          "'",
-        authResponse.accessToken
-      );
-      if (response.success && response.data.value.length) {
-        let responseValue = response.data.value[0];
-        let isMfaRegistered = responseValue.isMfaRegistered;
-        let isSignedIn =
-          (adUser.userType == 'Member' ||
-            (adUser.userType == 'Guest' &&
-              adUser.externalUserState == 'Accepted')) &&
-          isMfaRegistered;
-        let signedInDate = adUser.externalUserStateChangeDateTime
-          ? adUser.externalUserStateChangeDateTime
-          : new Date();
+      if (adUser) {
+        const response = await provider.apiGet(
+          apiRoot +
+            "/reports/credentialUserRegistrationDetails?$filter=userDisplayName eq '" +
+            adUser.displayName +
+            "'",
+          authResponse.accessToken
+        );
+        if (response.success && response.data.value.length) {
+          let responseValue = response.data.value[0];
+          let isMfaRegistered = responseValue.isMfaRegistered;
+          let isSignedIn =
+            (adUser.userType == 'Member' ||
+              (adUser.userType == 'Guest' &&
+                adUser.externalUserState == 'Accepted')) &&
+            isMfaRegistered;
+          let signedInDate = adUser.externalUserStateChangeDateTime
+            ? adUser.externalUserStateChangeDateTime
+            : new Date();
 
-        if (isSignedIn) {
-          logging.info(
-            configuration,
-            authResponse.accessToken,
-            'UpdateSignedInUsers - user with the following id marked as signedIn: ' +
-              userFields.id
-          );
-          patchSPUser(
-            userFields.id,
-            {
-              SignedIn: isSignedIn,
-              SignedInDate: signedInDate,
-            },
-            configuration,
-            authResponse.accessToken
-          );
+          if (isSignedIn) {
+            logging.info(
+              configuration,
+              authResponse.accessToken,
+              'UpdateSignedInUsers - user with the following id marked as signedIn: ' +
+                userFields.id,
+              '',
+              {},
+              jobName
+            );
+            patchSPUser(
+              userFields.id,
+              {
+                SignedIn: isSignedIn,
+                SignedInDate: signedInDate,
+              },
+              configuration,
+              authResponse.accessToken
+            );
+          }
         }
+      } else {
+        logging.error(
+          configuration,
+          authResponse.accessToken,
+          'UpdateSignedInUsers - user with the following id was not found in AD ' +
+            userFields.ADUserId,
+          '',
+          {},
+          jobName
+        );
       }
     }
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error);
+    logging.error(configuration, authResponse.accessToken, error, jobName);
   }
 }
 
@@ -112,7 +125,7 @@ async function getADUser(configuration, userId, accessToken) {
     }
     return undefined;
   } catch (error) {
-    logging.error(configuration, accessToken, error);
+    logging.error(configuration, accessToken, error, jobName);
     return undefined;
   }
 }
@@ -138,7 +151,7 @@ async function patchSPUser(userId, userData, configuration, accessToken) {
 
     return undefined;
   } catch (error) {
-    logging.error(configuration, accessToken, error);
+    logging.error(configuration, accessToken, error, jobName);
     return undefined;
   }
 }

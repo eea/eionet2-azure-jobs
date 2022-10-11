@@ -1,6 +1,6 @@
 {
   "name": "@eeacms/eionet2-azure-jobs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "[![GitHub release](https://img.shields.io/github/v/release/eea/eionet2-azure-jobs)](https://github.com/eea/eionet2-azure-jobs/releases)",
   "main": "index.js",
   "devDependencies": {
@@ -24,10 +24,9 @@
     "prettier:fix": "prettier --single-quote --write 'src/**/*.{js,jsx,json,css,less,md}'",
     "lint": "node_modules/eslint/bin/eslint.js --max-warnings=0 'src/**/*.{js,jsx}'",
     "lint:fix": "node_modules/eslint/bin/eslint.js --fix 'src/**/*.{js,jsx}'",
-    "test": "jest --watchAll=false --reporters=default --reporters=jest-junit --collectCoverage --coverageReporters lcov cobertura text 2>&1"
+    "test": "jest --watchAll=false --reporters=default --reporters=jest-junit --collectCoverage --collectCoverageFrom=./src/**"
   },
   "keywords": [],
-  "author": "Mihai Nicolae",
   "license": "MIT",
   "dependencies": {
     "@azure/msal-node": "^1.10.0",

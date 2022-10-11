@@ -1,6 +1,7 @@
 const logging = require('./logging'),
   provider = require('./provider'),
-  auth = require('./auth');
+  auth = require('./auth'),
+  jobName = 'UserNameUpdates';
 
 //Entry-point function for processing user names from Eionet sharepoint user list
 async function processUsers(configuration, authResponse) {
@@ -9,19 +10,16 @@ async function processUsers(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'UserNameUpdates - number of records loaded: ' + users.length
+      'UserNameUpdates - number of records loaded: ' + users.length,
+      '',
+      {},
+      jobName
     );
     users.forEach(async (user) => {
       await processUser(user, configuration, authResponse);
     });
-
-    await logging.info(
-      configuration,
-      authResponse.accessToken,
-      'UserNameUpdates - job ended'
-    );
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error);
+    logging.error(configuration, authResponse.accessToken, error, jobName);
     return error;
   }
 }
@@ -85,11 +83,21 @@ async function getADUser(configuration, userId, accessToken) {
 
 //Construct correct displayName for user
 function buildDisplayName(adUser, spUser) {
-  let displayName = spUser.Title + ' (' + adUser.country + ')';
-  if (spUser.NFP) {
-    displayName = spUser.Title + ' (NFP-' + adUser.country + ')';
+  if (adUser.country) {
+    let displayName = spUser.Title + ' (' + adUser.country + ')';
+    if (spUser.NFP) {
+      displayName = spUser.Title + ' (NFP-' + adUser.country + ')';
+    }
+    return displayName;
+  } else if (spUser.Country) {
+    let displayName = spUser.Title + ' (' + spUser.Country + ')';
+    if (spUser.NFP) {
+      displayName = spUser.Title + ' (NFP-' + spUser.Country + ')';
+    }
+    return displayName;
+  } else {
+    return spUser.Title;
   }
-  return displayName;
 }
 
 //Update AD user display name
@@ -103,14 +111,17 @@ async function patchUser(userId, displayName, configuration, accessToken) {
       await logging.info(
         configuration,
         accessToken,
-        'UserNameUpdates - user with the following id was updated: ' + userId
+        'UserNameUpdates - user with the following id was updated: ' + userId,
+        '',
+        {},
+        jobName
       );
       return response.data;
     } else {
       throw response?.error;
     }
   } catch (error) {
-    logging.error(configuration, accessToken, error);
+    logging.error(configuration, accessToken, error, jobName);
     return undefined;
   }
 }
