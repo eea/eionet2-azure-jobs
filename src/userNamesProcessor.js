@@ -30,11 +30,11 @@ async function loadUsers(listId, authResponse) {
 
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri +
-    'lists/' +
-    listId +
-    "/items?$expand=fields&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
-    filterDate +
-    "'",
+      'lists/' +
+      listId +
+      "/items?$expand=fields&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
+      filterDate +
+      "'",
     authResponse.accessToken
   );
   if (response.success) {
@@ -70,9 +70,9 @@ async function processUser(user, configuration, authResponse) {
 async function getADUser(configuration, userId, accessToken) {
   const adResponse = await provider.apiGet(
     auth.apiConfig.uri +
-    "/users/?$filter=id eq '" +
-    userId +
-    "'&$select=id,displayName,givenName,surname,country",
+      "/users/?$filter=id eq '" +
+      userId +
+      "'&$select=id,displayName,givenName,surname,country",
     accessToken
   );
   if (adResponse.success && adResponse.data.value.length) {
