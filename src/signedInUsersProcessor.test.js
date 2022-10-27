@@ -26,11 +26,7 @@ test('processSignedInUsers', () => {
                 Gender: 'Male',
                 Country: 'RO',
                 Email: 'toyet68222@sartess.com',
-                Membership: [
-                  'Communications',
-                  'Data-Digitalisation',
-                  'Forests',
-                ],
+                Membership: ['Communications', 'Data-Digitalisation', 'Forests'],
                 Phone: '65161530656520',
                 OrganisationLookupId: '4',
                 ADUserId: 'ae40523c-d750-41f5-9873-6346b474e5fb',
@@ -48,8 +44,7 @@ test('processSignedInUsers', () => {
           value: [
             {
               id: '9950274a-ba4b-40e1-92d8-8468cced65e3',
-              userPrincipalName:
-                'toyet68222_sartess.com#EXT#@7lcpdm.onmicrosoft.com',
+              userPrincipalName: 'toyet68222_sartess.com#EXT#@7lcpdm.onmicrosoft.com',
               userDisplayName: 'REAL Ionel Ganea (RO)',
               isRegistered: false,
               isEnabled: false,
@@ -77,9 +72,7 @@ test('processSignedInUsers', () => {
     }
   });
 
-  processor
-    .processSignedInUsers('', authResponse)
-    .then((data) => expect(data).toEqual(undefined));
+  processor.processSignedInUsers('', authResponse).then((data) => expect(data).toEqual(undefined));
 });
 
 test('processSignedInUsers', () => {
@@ -103,11 +96,7 @@ test('processSignedInUsers', () => {
                 Gender: 'Male',
                 Country: 'RO',
                 Email: 'toyet68222@sartess.com',
-                Membership: [
-                  'Communications',
-                  'Data-Digitalisation',
-                  'Forests',
-                ],
+                Membership: ['Communications', 'Data-Digitalisation', 'Forests'],
                 Phone: '65161530656520',
                 OrganisationLookupId: '4',
                 ADUserId: 'wrong_id',
@@ -134,9 +123,7 @@ test('processSignedInUsers', () => {
     }
   });
 
-  processor
-    .processSignedInUsers('', authResponse)
-    .then((data) => expect(data).toEqual(undefined));
+  processor.processSignedInUsers('', authResponse).then((data) => expect(data).toEqual(undefined));
 });
 
 /*test('processSignedInUsers', () => {

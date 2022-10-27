@@ -1,35 +1,25 @@
 const axios = require('axios'),
   auth = require('./auth');
 
-async function info(
-  configuration,
-  accessToken,
-  message,
-  apiPath,
-  data,
-  jobName
-) {
+async function info(configuration, accessToken, message, apiPath, data, jobName) {
   console.log(message);
   const options = {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   };
+  const jobTitle = jobName || 'Eionet2-Azure-Jobs';
   let fields = {
     fields: {
-      ApplicationName: jobName || 'Eionet2-Azure-Jobs',
+      ApplicationName: jobTitle,
       ApiPath: apiPath,
       ApiData: JSON.stringify(data),
-      Title: message,
+      Title: jobTitle + ' - ' + message,
       Logtype: 'Info',
       Timestamp: new Date(),
     },
   };
-  const path =
-    auth.apiConfigWithSite.uri +
-    'lists/' +
-    configuration.LoggingListId +
-    '/items';
+  const path = auth.apiConfigWithSite.uri + 'lists/' + configuration.LoggingListId + '/items';
 
   try {
     const response = await axios.default.post(path, fields, options);
@@ -53,6 +43,7 @@ async function error(configuration, accessToken, error, jobName) {
       Authorization: `Bearer ${accessToken}`,
     },
   };
+
   let fields = {
     fields: {
       ApplicationName: jobName || 'Eionet2-Azure-Jobs',
@@ -62,11 +53,7 @@ async function error(configuration, accessToken, error, jobName) {
       Timestamp: new Date(),
     },
   };
-  const path =
-    auth.apiConfigWithSite.uri +
-    'lists/' +
-    configuration.LoggingListId +
-    '/items';
+  const path = auth.apiConfigWithSite.uri + 'lists/' + configuration.LoggingListId + '/items';
 
   try {
     const response = await axios.default.post(path, fields, options);
