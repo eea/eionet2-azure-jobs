@@ -64,7 +64,7 @@ test('processUsers', () => {
                 Country: 'RO',
                 Email: 'toyet68222@sartess.com',
                 ADUserId: 'ae40523c-d750-41f5-9873-6346b474e5fb',
-                NFP: 'NFP'
+                NFP: 'NFP',
               },
             },
           ],
@@ -101,7 +101,7 @@ test('NFP', () => {
                 Country: 'RO',
                 Email: 'toyet68222@sartess.com',
                 ADUserId: 'ae40523c-d750-41f5-9873-6346b474e5fb',
-                NFP: 'NFP'
+                NFP: 'NFP',
               },
             },
           ],
@@ -143,7 +143,7 @@ test('AD country', () => {
                 Country: 'RO',
                 Email: 'toyet68222@sartess.com',
                 ADUserId: 'ae40523c-d750-41f5-9873-6346b474e5fb',
-                NFP: 'NFP'
+                NFP: 'NFP',
               },
             },
           ],
@@ -156,7 +156,7 @@ test('AD country', () => {
             {
               id: 'ae40523c-d750-41f5-9873-6346b474e5fb',
               displayName: 'REAL Ionel Ganea',
-              country: 'MK'
+              country: 'MK',
             },
           ],
         },
@@ -166,4 +166,3 @@ test('AD country', () => {
 
   processor.processUsers('', authResponse).then((data) => expect(data).toEqual(undefined));
 });
-

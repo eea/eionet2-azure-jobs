@@ -3,7 +3,6 @@ const provider = require('./provider'),
   auth = require('./auth'),
   jobName = 'UpdateMeetingParticipants';
 
-
 let configuration = undefined,
   authResponse = undefined;
 
@@ -47,7 +46,7 @@ async function processMeeting(meeting) {
   const apiRoot = auth.apiConfig.uri,
     meetingFields = meeting.fields;
 
-  const userId = await getADUserId(meetingFields.MeetingmanagerLookupId)
+  const userId = await getADUserId(meetingFields.MeetingmanagerLookupId);
   if (!userId) {
     await logging.info(
       configuration,
@@ -91,15 +90,19 @@ async function processMeeting(meeting) {
           if (filteredReports && filteredReports.length) {
             for (const report of filteredReports) {
               const reportDetailsResponse = await provider.apiGet(
-                apiRoot + 'users/' + userId + '/onlineMeetings/' + meetingId + '/attendanceReports/' + report.id + '?$expand=attendanceRecords',
+                apiRoot +
+                  'users/' +
+                  userId +
+                  '/onlineMeetings/' +
+                  meetingId +
+                  '/attendanceReports/' +
+                  report.id +
+                  '?$expand=attendanceRecords',
                 authResponse.accessToken,
               );
               if (reportDetailsResponse.success) {
                 reportDetailsResponse.data.attendanceRecords.forEach(async (attendanceRecord) => {
-                  const result = await processAttendanceRecord(
-                    meetingFields,
-                    attendanceRecord,
-                  );
+                  const result = await processAttendanceRecord(meetingFields, attendanceRecord);
                   reportProcessedYN = reportProcessedYN && result;
                 });
 
@@ -110,10 +113,7 @@ async function processMeeting(meeting) {
             }
 
             //Mark meeting as processed
-            await patchMeeting(
-              meetingFields.id,
-              processedReports,
-            );
+            await patchMeeting(meetingFields.id, processedReports);
           }
         } else {
           await logging.info(
@@ -135,12 +135,14 @@ async function processMeeting(meeting) {
         return attendanceReportsResponse.error;
       }
     } else {
-      await logging.info(configuration,
+      await logging.info(
+        configuration,
         authResponse.accessToken,
         'Unable to load meeting with link and manager specified',
         '',
         meetingFields,
-        jobName);
+        jobName,
+      );
       return meetingResponse.error;
     }
   } else {
@@ -183,7 +185,7 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
       };
 
       const path =
-        auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingPartcipantsListId + '/items',
+          auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingPartcipantsListId + '/items',
         response = await provider.apiPost(path, authResponse.accessToken, record2Save);
 
       return response.success;
@@ -250,7 +252,10 @@ async function getADUserId(lookupId) {
       if (response.success) {
         const userInfo = response.data.fields;
 
-        const adResponse = await provider.apiGet(auth.apiConfig.uri + 'users/' + userInfo.EMail, authResponse.accessToken);
+        const adResponse = await provider.apiGet(
+          auth.apiConfig.uri + 'users/' + userInfo.EMail,
+          authResponse.accessToken,
+        );
         if (adResponse.success) {
           return adResponse.data.id;
         }
@@ -269,7 +274,7 @@ async function getADUserId(lookupId) {
 async function patchMeeting(meetingId, processedReports) {
   try {
     const path =
-      auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId,
+        auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId,
       response = await provider.apiPatch(path, authResponse.accessToken, {
         fields: {
           Processedreports: processedReports.join('#'),
