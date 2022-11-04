@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="12" failures="0" errors="0" time="0.674">
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.279" tests="3">
-    <testcase classname=" processMeetings" name=" processMeetings" time="0.013">
+<testsuites name="jest tests" tests="15" failures="0" errors="0" time="0.654">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-27T12:50:22" time="0.262" tests="4">
+    <testcase classname=" processMeetings" name=" processMeetings" time="0.014">
     </testcase>
-    <testcase classname=" processMeetings" name=" processMeetings" time="0.001">
+    <testcase classname=" no attendace reports" name=" no attendace reports" time="0.001">
     </testcase>
-    <testcase classname=" processMeetings" name=" processMeetings" time="0.001">
+    <testcase classname=" missing meeting link" name=" missing meeting link" time="0.001">
+    </testcase>
+    <testcase classname=" wrong combination link and manager" name=" wrong combination link and manager" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.131" tests="2">
-    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.004">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-27T12:50:23" time="0.138" tests="4">
+    <testcase classname=" processUsers" name=" processUsers" time="0.007">
+    </testcase>
+    <testcase classname=" processUsers" name=" processUsers" time="0.001">
+    </testcase>
+    <testcase classname=" NFP" name=" NFP" time="0.001">
+    </testcase>
+    <testcase classname=" AD country" name=" AD country" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-27T12:50:23" time="0.081" tests="2">
+    <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.002">
     </testcase>
     <testcase classname=" processSignedInUsers" name=" processSignedInUsers" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.075" tests="2">
-    <testcase classname=" processUsers" name=" processUsers" time="0.002">
-    </testcase>
-    <testcase classname=" processUsers" name=" processUsers" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.061" tests="3">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-27T12:50:23" time="0.049" tests="3">
     <testcase classname=" fetch" name=" fetch" time="0.001">
     </testcase>
     <testcase classname=" post" name=" post" time="0">
@@ -28,8 +34,8 @@
     <testcase classname=" patch" name=" patch" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-05T09:54:35" time="0.052" tests="2">
-    <testcase classname=" info" name=" info" time="0">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2022-10-27T12:50:23" time="0.05" tests="2">
+    <testcase classname=" info" name=" info" time="0.001">
     </testcase>
     <testcase classname=" error" name=" error" time="0">
     </testcase>

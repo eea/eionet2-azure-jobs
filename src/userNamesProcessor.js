@@ -10,10 +10,10 @@ async function processUsers(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'UserNameUpdates - number of records loaded: ' + users.length,
+      'Number of records loaded: ' + users.length,
       '',
       {},
-      jobName
+      jobName,
     );
     users.forEach(async (user) => {
       await processUser(user, configuration, authResponse);
@@ -35,7 +35,7 @@ async function loadUsers(listId, authResponse) {
       "/items?$expand=fields&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
       filterDate +
       "'",
-    authResponse.accessToken
+    authResponse.accessToken,
   );
   if (response.success) {
     return response.data.value;
@@ -47,21 +47,12 @@ async function loadUsers(listId, authResponse) {
 async function processUser(user, configuration, authResponse) {
   const userFields = user.fields;
 
-  const adUser = await getADUser(
-    configuration,
-    userFields.ADUserId,
-    authResponse.accessToken
-  );
+  const adUser = await getADUser(configuration, userFields.ADUserId, authResponse.accessToken);
   if (adUser) {
     const displayName = buildDisplayName(adUser, userFields);
 
     if (adUser.displayName != displayName) {
-      await patchUser(
-        userFields.ADUserId,
-        displayName,
-        configuration,
-        authResponse.accessToken
-      );
+      await patchUser(userFields.ADUserId, displayName, configuration, authResponse.accessToken);
     }
   }
 }
@@ -73,7 +64,7 @@ async function getADUser(configuration, userId, accessToken) {
       "/users/?$filter=id eq '" +
       userId +
       "'&$select=id,displayName,givenName,surname,country",
-    accessToken
+    accessToken,
   );
   if (adResponse.success && adResponse.data.value.length) {
     return adResponse.data.value[0];
@@ -111,10 +102,10 @@ async function patchUser(userId, displayName, configuration, accessToken) {
       await logging.info(
         configuration,
         accessToken,
-        'UserNameUpdates - user with the following id was updated: ' + userId,
+        'User with the following id was updated: ' + userId,
         '',
         {},
-        jobName
+        jobName,
       );
       return response.data;
     } else {

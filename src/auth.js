@@ -27,11 +27,7 @@ const apiConfig = {
 };
 
 const apiConfigWithSite = {
-  uri:
-    process.env.GRAPH_ENDPOINT +
-    '/beta/sites/' +
-    process.env.SHAREPOINT_SITE_ID +
-    '/',
+  uri: process.env.GRAPH_ENDPOINT + '/beta/sites/' + process.env.SHAREPOINT_SITE_ID + '/',
 };
 
 /**

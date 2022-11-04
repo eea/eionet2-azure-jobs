@@ -11,10 +11,10 @@ async function processSignedInUsers(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'UpdateSignedInUsers - number of records loaded: ' + users.length,
+      'Number of records loaded: ' + users.length,
       '',
       {},
-      jobName
+      jobName,
     );
     users.forEach(async (user) => {
       await processUser(user, configuration, authResponse);
@@ -31,7 +31,7 @@ async function loadUsers(listId, authResponse) {
       'lists/' +
       listId +
       '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq null or fields/SignedIn eq 0',
-    authResponse.accessToken
+    authResponse.accessToken,
   );
   if (response.success) {
     return response.data.value;
@@ -46,11 +46,7 @@ async function processUser(user, configuration, authResponse) {
 
   try {
     if (userFields.ADUserId) {
-      const adUser = await getADUser(
-        configuration,
-        userFields.ADUserId,
-        authResponse.accessToken
-      );
+      const adUser = await getADUser(configuration, userFields.ADUserId, authResponse.accessToken);
 
       if (adUser) {
         const response = await provider.apiGet(
@@ -58,15 +54,14 @@ async function processUser(user, configuration, authResponse) {
             "/reports/credentialUserRegistrationDetails?$filter=userDisplayName eq '" +
             adUser.displayName +
             "'",
-          authResponse.accessToken
+          authResponse.accessToken,
         );
         if (response.success && response.data.value.length) {
           let responseValue = response.data.value[0];
           let isMfaRegistered = responseValue.isMfaRegistered;
           let isSignedIn =
             (adUser.userType == 'Member' ||
-              (adUser.userType == 'Guest' &&
-                adUser.externalUserState == 'Accepted')) &&
+              (adUser.userType == 'Guest' && adUser.externalUserState == 'Accepted')) &&
             isMfaRegistered;
           let signedInDate = adUser.externalUserStateChangeDateTime
             ? adUser.externalUserStateChangeDateTime
@@ -76,11 +71,10 @@ async function processUser(user, configuration, authResponse) {
             logging.info(
               configuration,
               authResponse.accessToken,
-              'UpdateSignedInUsers - user with the following id marked as signedIn: ' +
-                userFields.id,
+              'User with the following id marked as signedIn: ' + userFields.id,
               '',
               {},
-              jobName
+              jobName,
             );
             patchSPUser(
               userFields.id,
@@ -89,7 +83,7 @@ async function processUser(user, configuration, authResponse) {
                 SignedInDate: signedInDate,
               },
               configuration,
-              authResponse.accessToken
+              authResponse.accessToken,
             );
           }
         }
@@ -97,11 +91,10 @@ async function processUser(user, configuration, authResponse) {
         logging.error(
           configuration,
           authResponse.accessToken,
-          'UpdateSignedInUsers - user with the following id was not found in AD ' +
-            userFields.ADUserId,
+          'User with the following id was not found in AD ' + userFields.ADUserId,
           '',
           {},
-          jobName
+          jobName,
         );
       }
     }
@@ -118,7 +111,7 @@ async function getADUser(configuration, userId, accessToken) {
         "/users/?$filter=id eq '" +
         userId +
         "'&$select=id,displayName,userType,externalUserState,externalUserStateChangeDateTime",
-      accessToken
+      accessToken,
     );
     if (adResponse.success && adResponse.data.value.length) {
       return adResponse.data.value[0];
@@ -134,11 +127,7 @@ async function getADUser(configuration, userId, accessToken) {
 async function patchSPUser(userId, userData, configuration, accessToken) {
   try {
     const path =
-        auth.apiConfigWithSite.uri +
-        'lists/' +
-        configuration.UserListId +
-        '/items/' +
-        userId,
+        auth.apiConfigWithSite.uri + 'lists/' + configuration.UserListId + '/items/' + userId,
       response = await provider.apiPatch(path, accessToken, {
         fields: {
           SignedIn: userData.SignedIn,
