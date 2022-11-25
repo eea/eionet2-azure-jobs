@@ -63,11 +63,11 @@ async function processMeeting(meeting) {
       const meetingUrl = meetingFields.Meetinglink.Url,
         meetingResponse = await provider.apiGet(
           apiRoot +
-          'users/' +
-          userId +
-          "/onlineMeetings?$filter=JoinWebUrl eq '" +
-          meetingUrl +
-          "'",
+            'users/' +
+            userId +
+            "/onlineMeetings?$filter=JoinWebUrl eq '" +
+            meetingUrl +
+            "'",
           authResponse.accessToken,
         ),
         processedReports = meetingFields.Processedreports
@@ -96,13 +96,13 @@ async function processMeeting(meeting) {
               for (const report of filteredReports) {
                 const reportDetailsResponse = await provider.apiGet(
                   apiRoot +
-                  'users/' +
-                  userId +
-                  '/onlineMeetings/' +
-                  meetingId +
-                  '/attendanceReports/' +
-                  report.id +
-                  '?$expand=attendanceRecords',
+                    'users/' +
+                    userId +
+                    '/onlineMeetings/' +
+                    meetingId +
+                    '/attendanceReports/' +
+                    report.id +
+                    '?$expand=attendanceRecords',
                   authResponse.accessToken,
                 );
 
@@ -163,9 +163,9 @@ async function processMeeting(meeting) {
           configuration,
           authResponse.accessToken,
           'Unable to load meeting with link and manager specified userId: ' +
-          userId +
-          ' ' +
-          meetingResponse.error,
+            userId +
+            ' ' +
+            meetingResponse.error,
           '',
           meetingFields,
           jobName,
@@ -216,7 +216,10 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
       };
 
       const path =
-        auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingPartcipantsListId + '/items',
+          auth.apiConfigWithSite.uri +
+          'lists/' +
+          configuration.MeetingParticipantsListId +
+          '/items',
         response = await provider.apiPost(path, authResponse.accessToken, record2Save);
 
       return response.success;
@@ -252,7 +255,7 @@ async function getParticipant(meetingId, email, name) {
     let path =
       auth.apiConfigWithSite.uri +
       'lists/' +
-      configuration.MeetingPartcipantsListId +
+      configuration.MeetingParticipantsListId +
       '/items?$filter=fields/MeetingtitleLookupId eq ' +
       meetingId +
       ' and fields/';
@@ -305,7 +308,7 @@ async function getADUserId(lookupId) {
 async function patchMeeting(meetingId, processedReports) {
   try {
     const path =
-      auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId,
+        auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId,
       response = await provider.apiPatch(path, authResponse.accessToken, {
         fields: {
           Processedreports: processedReports.join('#'),
