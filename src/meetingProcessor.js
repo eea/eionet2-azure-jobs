@@ -315,6 +315,14 @@ async function patchMeeting(meetingId, processedReports) {
         },
       });
     if (response.success) {
+      await logging.info(
+        configuration,
+        authResponse.accessToken,
+        'Meeting updated succesfully - id: ' + meetingId,
+        '',
+        processedReports.join('#'),
+        jobName,
+      );
       return response.data;
     }
 
