@@ -10,16 +10,16 @@ async function processUsers(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'Number of records loaded: ' + users.length,
+      'Number of users for userNameUpdates loaded: ' + users.length,
       '',
       {},
       jobName,
     );
-    users.forEach(async (user) => {
+    for (const user of users) {
       await processUser(user, configuration, authResponse);
-    });
+    }
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, authResponse.accessToken, error, jobName);
     return error;
   }
 }
@@ -112,7 +112,7 @@ async function patchUser(userId, displayName, configuration, accessToken) {
       throw response?.error;
     }
   } catch (error) {
-    logging.error(configuration, accessToken, error, jobName);
+    await logging.error(configuration, accessToken, error, jobName);
     return undefined;
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@eeacms/eionet2-azure-jobs",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "[![GitHub release](https://img.shields.io/github/v/release/eea/eionet2-azure-jobs)](https://github.com/eea/eionet2-azure-jobs/releases)",
   "main": "index.js",
   "devDependencies": {

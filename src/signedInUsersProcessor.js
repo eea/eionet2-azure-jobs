@@ -11,16 +11,16 @@ async function processSignedInUsers(configuration, authResponse) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'Number of records loaded: ' + users.length,
+      'Number of user for signedIn to process: ' + users.length,
       '',
       {},
       jobName,
     );
-    users.forEach(async (user) => {
+    for (const user of users) {
       await processUser(user, configuration, authResponse);
-    });
+    }
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, authResponse.accessToken, error, jobName);
     return error;
   }
 }
@@ -68,7 +68,7 @@ async function processUser(user, configuration, authResponse) {
             : new Date();
 
           if (isSignedIn) {
-            logging.info(
+            await logging.info(
               configuration,
               authResponse.accessToken,
               'User with the following id marked as signedIn: ' + userFields.id,
@@ -76,7 +76,7 @@ async function processUser(user, configuration, authResponse) {
               {},
               jobName,
             );
-            patchSPUser(
+            await patchSPUser(
               userFields.id,
               {
                 SignedIn: isSignedIn,
@@ -88,18 +88,16 @@ async function processUser(user, configuration, authResponse) {
           }
         }
       } else {
-        logging.error(
+        await logging.error(
           configuration,
           authResponse.accessToken,
           'User with the following id was not found in AD ' + userFields.ADUserId,
-          '',
-          {},
           jobName,
         );
       }
     }
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, authResponse.accessToken, error, jobName);
   }
 }
 
@@ -118,7 +116,7 @@ async function getADUser(configuration, userId, accessToken) {
     }
     return undefined;
   } catch (error) {
-    logging.error(configuration, accessToken, error, jobName);
+    await logging.error(configuration, accessToken, error, jobName);
     return undefined;
   }
 }
@@ -140,7 +138,7 @@ async function patchSPUser(userId, userData, configuration, accessToken) {
 
     return undefined;
   } catch (error) {
-    logging.error(configuration, accessToken, error, jobName);
+    await logging.error(configuration, accessToken, error, jobName);
     return undefined;
   }
 }

@@ -20,11 +20,11 @@ async function processMeetings(config, authResp) {
       {},
       jobName,
     );
-    meetings.forEach(async (meeting) => {
+    for (const meeting of meetings) {
       await processMeeting(meeting);
-    });
+    }
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, authResponse.accessToken, error, jobName);
     return error;
   }
 }
@@ -58,102 +58,133 @@ async function processMeeting(meeting) {
     );
     return;
   }
+  try {
+    if (meetingFields.Meetinglink) {
+      const meetingUrl = meetingFields.Meetinglink.Url,
+        meetingResponse = await provider.apiGet(
+          apiRoot +
+            'users/' +
+            userId +
+            "/onlineMeetings?$filter=JoinWebUrl eq '" +
+            meetingUrl +
+            "'",
+          authResponse.accessToken,
+        ),
+        processedReports = meetingFields.Processedreports
+          ? meetingFields.Processedreports.split('#')
+          : [];
 
-  if (meetingFields.Meetinglink) {
-    const meetingUrl = meetingFields.Meetinglink.Url,
-      meetingResponse = await provider.apiGet(
-        apiRoot + 'users/' + userId + "/onlineMeetings?$filter=JoinWebUrl eq '" + meetingUrl + "'",
-        authResponse.accessToken,
-      ),
-      processedReports = meetingFields.Processedreports
-        ? meetingFields.Processedreports.split('#')
-        : [];
+      if (meetingResponse.success && meetingResponse.data.value.length) {
+        const meetingId = meetingResponse.data.value[0].id;
 
-    if (meetingResponse.success && meetingResponse.data.value.length) {
-      const meetingId = meetingResponse.data.value[0].id;
+        //load all attendance reports for meeting
+        const attendanceReportsResponse = await provider.apiGet(
+          apiRoot + 'users/' + userId + '/onlineMeetings/' + meetingId + '/attendanceReports',
+          authResponse.accessToken,
+        );
 
-      //load all attendance reports for meeting
-      const attendanceReportsResponse = await provider.apiGet(
-        apiRoot + 'users/' + userId + '/onlineMeetings/' + meetingId + '/attendanceReports',
-        authResponse.accessToken,
-      );
+        if (attendanceReportsResponse.success) {
+          const reports = attendanceReportsResponse.data.value;
+          let reportProcessedYN = true;
 
-      if (attendanceReportsResponse.success) {
-        const reports = attendanceReportsResponse.data.value;
-        let reportProcessedYN = true;
+          if (reports.length) {
+            const filteredReports = reports.filter((report) => {
+              return !processedReports.includes(report.id);
+            });
+            //process only attendance reports that are not stored on meeting record in sharepoint list
+            if (filteredReports && filteredReports.length) {
+              for (const report of filteredReports) {
+                const reportDetailsResponse = await provider.apiGet(
+                  apiRoot +
+                    'users/' +
+                    userId +
+                    '/onlineMeetings/' +
+                    meetingId +
+                    '/attendanceReports/' +
+                    report.id +
+                    '?$expand=attendanceRecords',
+                  authResponse.accessToken,
+                );
 
-        if (reports.length) {
-          const filteredReports = reports.filter((report) => {
-            return !processedReports.includes(report.id);
-          });
-          //process only attendance reports that are not stored on meeting record in sharepoint list
-          if (filteredReports && filteredReports.length) {
-            for (const report of filteredReports) {
-              const reportDetailsResponse = await provider.apiGet(
-                apiRoot +
-                  'users/' +
-                  userId +
-                  '/onlineMeetings/' +
-                  meetingId +
-                  '/attendanceReports/' +
-                  report.id +
-                  '?$expand=attendanceRecords',
-                authResponse.accessToken,
-              );
-              if (reportDetailsResponse.success) {
-                reportDetailsResponse.data.attendanceRecords.forEach(async (attendanceRecord) => {
-                  const result = await processAttendanceRecord(meetingFields, attendanceRecord);
-                  reportProcessedYN = reportProcessedYN && result;
-                });
+                await logging.info(
+                  configuration,
+                  authResponse.accessToken,
+                  'Attendance records loaded',
+                  '',
+                  reportDetailsResponse,
+                  jobName,
+                );
 
-                //Add reportId to processed list
-                reportProcessedYN && processedReports.push(report.id);
-                reportProcessedYN = true;
+                if (reportDetailsResponse.success) {
+                  reportDetailsResponse.data.attendanceRecords.forEach(async (attendanceRecord) => {
+                    const result = await processAttendanceRecord(meetingFields, attendanceRecord);
+                    reportProcessedYN = reportProcessedYN && result;
+                  });
+
+                  //Add reportId to processed list
+                  reportProcessedYN && processedReports.push(report.id);
+                  reportProcessedYN = true;
+                }
               }
-            }
 
-            //Mark meeting as processed
-            await patchMeeting(meetingFields.id, processedReports);
+              //Mark meeting as processed
+              await patchMeeting(meetingFields.id, processedReports);
+            } else {
+              await logging.info(
+                configuration,
+                authResponse.accessToken,
+                'No new attendance reports found',
+                '',
+                meetingFields,
+                jobName,
+              );
+            }
+          } else {
+            await logging.info(
+              configuration,
+              authResponse.accessToken,
+              'Missing attendance reports. No user has joined so far the meeting.',
+              '',
+              meetingFields,
+              jobName,
+            );
           }
         } else {
-          await logging.info(
+          await logging.error(
             configuration,
             authResponse.accessToken,
-            'No attendance reports found',
-            '',
-            meetingFields,
+            attendanceReportsResponse.error,
             jobName,
           );
+          return attendanceReportsResponse.error;
         }
       } else {
-        await logging.error(
+        await logging.info(
           configuration,
           authResponse.accessToken,
-          attendanceReportsResponse.error,
+          'Unable to load meeting with link and manager specified userId: ' +
+            userId +
+            ' ' +
+            meetingResponse.error,
+          '',
+          meetingFields,
           jobName,
         );
-        return attendanceReportsResponse.error;
+        return meetingResponse.error;
       }
     } else {
       await logging.info(
         configuration,
         authResponse.accessToken,
-        'Unable to load meeting with link and manager specified',
+        'Missing meeting link',
         '',
         meetingFields,
         jobName,
       );
-      return meetingResponse.error;
     }
-  } else {
-    await logging.info(
-      configuration,
-      authResponse.accessToken,
-      'Missing meeting link',
-      '',
-      meetingFields,
-      jobName,
-    );
+  } catch (error) {
+    await logging.error(configuration, authResponse.accessToken, error, jobName);
+    return false;
   }
 }
 
@@ -185,7 +216,10 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
       };
 
       const path =
-          auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingPartcipantsListId + '/items',
+          auth.apiConfigWithSite.uri +
+          'lists/' +
+          configuration.MeetingParticipantsListId +
+          '/items',
         response = await provider.apiPost(path, authResponse.accessToken, record2Save);
 
       return response.success;
@@ -193,7 +227,7 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
       return true;
     }
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, authResponse.accessToken, error, jobName);
     return false;
   }
 }
@@ -210,7 +244,7 @@ async function getUserByMail(email) {
     }
     return undefined;
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, authResponse.accessToken, error, jobName);
     return undefined;
   }
 }
@@ -221,7 +255,7 @@ async function getParticipant(meetingId, email, name) {
     let path =
       auth.apiConfigWithSite.uri +
       'lists/' +
-      configuration.MeetingPartcipantsListId +
+      configuration.MeetingParticipantsListId +
       '/items?$filter=fields/MeetingtitleLookupId eq ' +
       meetingId +
       ' and fields/';
@@ -238,7 +272,7 @@ async function getParticipant(meetingId, email, name) {
 
     return undefined;
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, authResponse.accessToken, error, jobName);
     return undefined;
   }
 }
@@ -263,7 +297,7 @@ async function getADUserId(lookupId) {
 
       return undefined;
     } catch (error) {
-      logging.error(configuration, authResponse.accessToken, error, jobName);
+      await logging.error(configuration, authResponse.accessToken, error, jobName);
       return undefined;
     }
   }
@@ -281,12 +315,20 @@ async function patchMeeting(meetingId, processedReports) {
         },
       });
     if (response.success) {
+      await logging.info(
+        configuration,
+        authResponse.accessToken,
+        'Meeting updated succesfully - id: ' + meetingId,
+        '',
+        processedReports.join('#'),
+        jobName,
+      );
       return response.data;
     }
 
     return undefined;
   } catch (error) {
-    logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, authResponse.accessToken, error, jobName);
     return undefined;
   }
 }

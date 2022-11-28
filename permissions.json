@@ -1,0 +1,28 @@
+{
+  "permissions": [
+    {
+      "id": "OnlineMeetingArtifact.Read.All",
+      "type": "Role"
+    },
+    {
+      "id": "OnlineMeeting.Read.All",
+      "type": "Role"
+    },
+    {
+      "id": "Reports.Read.All",
+      "type": "Role"
+    },
+    {
+      "id": "User.ReadWrite.All",
+      "type": "Role"
+    },
+    {
+      "id": "Sites.ReadWrite.All",
+      "type": "Role"
+    },
+    {
+      "id": "User.Read",
+      "type": "Scope"
+    }
+  ]
+}
