@@ -24,14 +24,19 @@
     "prettier:fix": "prettier --single-quote --write 'src/**/*.{js,jsx,json,css,less,md}'",
     "lint": "node_modules/eslint/bin/eslint.js --max-warnings=0 'src/**/*.{js,jsx}'",
     "lint:fix": "node_modules/eslint/bin/eslint.js --fix 'src/**/*.{js,jsx}'",
-    "test": "jest --watchAll=false --reporters=default --reporters=jest-junit --collectCoverage --collectCoverageFrom=./src/**"
+    "test": "jest --coverage",
+    "pc": "npm run stylelint:fix & npm run prettier:fix & npm run lint:fix & npm run test"
   },
+  "pre-commit": [
+    "pc"
+  ],
   "keywords": [],
   "license": "MIT",
   "dependencies": {
     "@azure/msal-node": "^1.10.0",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
+    "pre-commit": "^1.2.2",
     "yargs": "^17.5.1"
   },
   "repository": {
