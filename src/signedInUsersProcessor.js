@@ -59,10 +59,7 @@ async function processUser(user, configuration, authResponse) {
         if (response.success && response.data.value.length) {
           let responseValue = response.data.value[0];
           let isMfaRegistered = responseValue.isMfaRegistered;
-          let isSignedIn =
-            (adUser.userType == 'Member' ||
-              (adUser.userType == 'Guest' && adUser.externalUserState == 'Accepted')) &&
-            isMfaRegistered;
+          let isSignedIn = adUser.userType == 'Guest' && isMfaRegistered;
           let signedInDate = adUser.externalUserStateChangeDateTime
             ? adUser.externalUserStateChangeDateTime
             : new Date();

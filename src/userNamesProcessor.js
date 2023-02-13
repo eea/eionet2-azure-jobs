@@ -32,7 +32,7 @@ async function loadUsers(listId, authResponse) {
     auth.apiConfigWithSite.uri +
       'lists/' +
       listId +
-      "/items?$expand=fields&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
+      "/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
       filterDate +
       "'",
     authResponse.accessToken,

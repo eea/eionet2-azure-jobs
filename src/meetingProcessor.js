@@ -60,7 +60,7 @@ async function processMeeting(meeting) {
   }
   try {
     if (meetingFields.Meetinglink) {
-      const meetingUrl = meetingFields.Meetinglink.Url,
+      const meetingUrl = meetingFields.Meetinglink,
         meetingResponse = await provider.apiGet(
           apiRoot +
             'users/' +
@@ -116,10 +116,31 @@ async function processMeeting(meeting) {
                 );
 
                 if (reportDetailsResponse.success) {
-                  reportDetailsResponse.data.attendanceRecords.forEach(async (attendanceRecord) => {
+                  if (!reportDetailsResponse.data.attendanceRecords.length) {
+                    await logging.info(
+                      configuration,
+                      authResponse.accessToken,
+                      'No attendance records found for report id: ' + report.id,
+                      '',
+                      reportDetailsResponse,
+                      jobName,
+                    );
+                  }
+
+                  for (const attendanceRecord of reportDetailsResponse.data.attendanceRecords) {
                     const result = await processAttendanceRecord(meetingFields, attendanceRecord);
                     reportProcessedYN = reportProcessedYN && result;
-                  });
+                  }
+
+                  reportProcessedYN &&
+                    (await logging.info(
+                      configuration,
+                      authResponse.accessToken,
+                      'Report processed succesfully',
+                      '',
+                      report.id,
+                      jobName,
+                    ));
 
                   //Add reportId to processed list
                   reportProcessedYN && processedReports.push(report.id);
@@ -222,8 +243,29 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
           '/items',
         response = await provider.apiPost(path, authResponse.accessToken, record2Save);
 
+      if (response.success) {
+        await logging.info(
+          configuration,
+          authResponse.accessToken,
+          'Meeting participant added succesfully',
+          '',
+          record2Save,
+          jobName,
+        );
+      } else {
+        await logging.error(configuration, authResponse.accessToken, response.error, jobName);
+      }
+
       return response.success;
     } else {
+      await logging.info(
+        configuration,
+        authResponse.accessToken,
+        'Participant already recorded',
+        '',
+        existingParticipant,
+        jobName,
+      );
       return true;
     }
   } catch (error) {
@@ -236,10 +278,19 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
 async function getUserByMail(email) {
   try {
     const adResponse = await provider.apiGet(
-      auth.apiConfig.uri + "/users/?$filter=mail eq '" + email + "'",
+      auth.apiConfig.uri + "/users/?$filter=mail eq '" + email?.replace("'", "''") + "'",
       authResponse.accessToken,
     );
     if (adResponse.success && adResponse.data.value.length) {
+      await logging.info(
+        configuration,
+        authResponse.accessToken,
+        'Loaded participant user data',
+        '',
+        adResponse,
+        jobName,
+      );
+
       return adResponse.data.value[0];
     }
     return undefined;
@@ -260,7 +311,7 @@ async function getParticipant(meetingId, email, name) {
       meetingId +
       ' and fields/';
     if (email) {
-      path += "EMail eq '" + email + "'";
+      path += "EMail eq '" + email?.replace("'", "''") + "'";
     } else {
       path += "Participantname eq '" + name + "'";
     }
