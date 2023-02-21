@@ -37,7 +37,7 @@ const meetingObject = {
       Meetingend: '2022-01-28T10:30:00Z',
       MeetingmanagerLookupId: '30',
       Group: 'Communications',
-      Meetinglink: 'Test',
+      JoinMeetingId: '256 856 969',
       Linktofolder: {
         Description: 'Meeting folder',
         Url: 'https://eea1.sharepoint.com/:f:/r/teams/-EXT-Eionet/Shared%20Documents/Communications/Editorial%20meetings/First%20Editorial%20Meeting%20-%2028-01-22?csf=1&web=1&e=aaQMOE',
@@ -67,7 +67,7 @@ test('processMeetings', () => {
           value: [meetingObject],
         },
       });
-    } else if (url.includes('/onlineMeetings?$filter=JoinWebUrl eq')) {
+    } else if (url.includes('/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq')) {
       return Promise.resolve({
         success: true,
         data: {
@@ -149,7 +149,7 @@ test('no attendace reports', () => {
           value: [meetingObject],
         },
       });
-    } else if (url.includes('/onlineMeetings?$filter=JoinWebUrl eq')) {
+    } else if (url.includes('/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq')) {
       return Promise.resolve({
         success: true,
         data: {
@@ -193,7 +193,7 @@ test('no attendace reports', () => {
     .then((data) => expect(data).toEqual(undefined));
 });
 
-test('missing meeting link', () => {
+test('missing meeting manager', () => {
   const authResponse = {
     accessToken: {},
   };
@@ -229,7 +229,53 @@ test('missing meeting link', () => {
     .then((data) => expect(data).toEqual(undefined));
 });
 
-test('wrong combination link and manager', () => {
+test('missing meeting id', () => {
+  const authResponse = {
+    accessToken: {},
+  };
+
+  axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
+  axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
+  axios.get.mockImplementation((url) => {
+    if (url.includes('&$filter=fields/Processed eq 0')) {
+      return Promise.resolve({
+        success: true,
+        data: {
+          value: [
+            {
+              fields: {
+                id: '2',
+                MeetingmanagerLookupId: '30',
+              },
+            },
+          ],
+        },
+      });
+    } else if (url.includes('lists/User Information List/items/')) {
+      return Promise.resolve({
+        success: true,
+        data: {
+          fields: {
+            EMail: 'test@test.com',
+          },
+        },
+      });
+    } else if (url.includes('users/test@test.com')) {
+      return Promise.resolve({
+        success: true,
+        data: {
+          id: 'userId',
+        },
+      });
+    }
+  });
+
+  return processor
+    .processMeetings('', authResponse)
+    .then((data) => expect(data).toEqual(undefined));
+});
+
+test('wrong combination id and manager', () => {
   const authResponse = {
     accessToken: {},
   };
@@ -244,7 +290,7 @@ test('wrong combination link and manager', () => {
           value: [meetingObject],
         },
       });
-    } else if (url.includes('/onlineMeetings?$filter=JoinWebUrl eq')) {
+    } else if (url.includes('/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq')) {
       return Promise.resolve({
         success: true,
         data: {

@@ -30,8 +30,14 @@ async function processMeetings(config, authResp) {
 }
 
 async function loadMeetings(meetingListId) {
+  //get meetings from last 24 hours or meetings not processed so far
+  const last24Hours = new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
+    filterString =
+      "&$filter=fields/Processed eq 0 or fields/Meetingstart ge '" +
+      last24Hours.toDateString() +
+      "'";
   const response = await provider.apiGet(
-    auth.apiConfigWithSite.uri + 'lists/' + meetingListId + '/items?$expand=fields',
+    auth.apiConfigWithSite.uri + 'lists/' + meetingListId + '/items?$expand=fields' + filterString,
     authResponse.accessToken,
   );
   if (response.success) {
@@ -48,25 +54,23 @@ async function processMeeting(meeting) {
 
   const userId = await getADUserId(meetingFields.MeetingmanagerLookupId);
   if (!userId) {
-    await logging.info(
+    await logging.error(
       configuration,
       authResponse.accessToken,
-      'Missing meeting manager',
-      '',
-      meetingFields,
+      'Missing meeting manager for meeting id: ' + meetingFields.id,
       jobName,
     );
     return;
   }
   try {
-    if (meetingFields.Meetinglink) {
-      const meetingUrl = meetingFields.Meetinglink,
+    if (meetingFields.JoinMeetingId) {
+      const joinMeetingId = meetingFields.JoinMeetingId.split(' ').join(''),
         meetingResponse = await provider.apiGet(
           apiRoot +
             'users/' +
             userId +
-            "/onlineMeetings?$filter=JoinWebUrl eq '" +
-            meetingUrl +
+            "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
+            joinMeetingId +
             "'",
           authResponse.accessToken,
         ),
@@ -106,37 +110,34 @@ async function processMeeting(meeting) {
                   authResponse.accessToken,
                 );
 
-                await logging.info(
-                  configuration,
-                  authResponse.accessToken,
-                  'Attendance records loaded',
-                  '',
-                  reportDetailsResponse,
-                  jobName,
-                );
-
                 if (reportDetailsResponse.success) {
-                  if (!reportDetailsResponse.data.attendanceRecords.length) {
-                    await logging.info(
-                      configuration,
-                      authResponse.accessToken,
-                      'No attendance records found for report id: ' + report.id,
-                      '',
-                      reportDetailsResponse,
-                      jobName,
+                  const hasAttendanceRecords =
+                    reportDetailsResponse.data.attendanceRecords.length > 0;
+                  !hasAttendanceRecords &&
+                    console.log(
+                      'No attendance records found for report id: ' +
+                        report.id +
+                        JSON.stringify(reportDetailsResponse),
                     );
-                  }
+
+                  hasAttendanceRecords &&
+                    console.log(
+                      'Attendance records loaded: ' +
+                        report.id +
+                        JSON.stringify(reportDetailsResponse),
+                    );
 
                   for (const attendanceRecord of reportDetailsResponse.data.attendanceRecords) {
                     const result = await processAttendanceRecord(meetingFields, attendanceRecord);
                     reportProcessedYN = reportProcessedYN && result;
                   }
 
-                  reportProcessedYN &&
+                  hasAttendanceRecords &&
+                    reportProcessedYN &&
                     (await logging.info(
                       configuration,
                       authResponse.accessToken,
-                      'Report processed succesfully',
+                      'Meeting participants updated',
                       '',
                       report.id,
                       jobName,
@@ -151,23 +152,12 @@ async function processMeeting(meeting) {
               //Mark meeting as processed
               await patchMeeting(meetingFields.id, processedReports);
             } else {
-              await logging.info(
-                configuration,
-                authResponse.accessToken,
-                'No new attendance reports found',
-                '',
-                meetingFields,
-                jobName,
-              );
+              console.log('No new attendance reports found' + JSON.stringify(meetingFields));
             }
           } else {
-            await logging.info(
-              configuration,
-              authResponse.accessToken,
-              'Missing attendance reports. No user has joined so far the meeting.',
-              '',
-              meetingFields,
-              jobName,
+            console.log(
+              'Missing attendance reports. No user has joined so far the meeting.' +
+                JSON.stringify(meetingFields),
             );
           }
         } else {
@@ -180,26 +170,22 @@ async function processMeeting(meeting) {
           return attendanceReportsResponse.error;
         }
       } else {
-        await logging.info(
+        await logging.error(
           configuration,
           authResponse.accessToken,
-          'Unable to load meeting with link and manager specified userId: ' +
+          'Unable to load meeting with id and manager specified userId: ' +
             userId +
             ' ' +
             meetingResponse.error,
-          '',
-          meetingFields,
           jobName,
         );
         return meetingResponse.error;
       }
     } else {
-      await logging.info(
+      await logging.error(
         configuration,
         authResponse.accessToken,
-        'Missing meeting link',
-        '',
-        meetingFields,
+        'Missing JoinMeetingId for meeting id: ' + meetingFields.id,
         jobName,
       );
     }
@@ -232,7 +218,6 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
           MeetingtitleLookupId: meetingFields.id,
           EMail: attendanceRecord.emailAddress,
           Participated: true,
-          ...(meetingFields.Group && { EionetGroup: meetingFields.Group }),
         },
       };
 
@@ -244,28 +229,14 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
         response = await provider.apiPost(path, authResponse.accessToken, record2Save);
 
       if (response.success) {
-        await logging.info(
-          configuration,
-          authResponse.accessToken,
-          'Meeting participant added succesfully',
-          '',
-          record2Save,
-          jobName,
-        );
+        console.log('Meeting participant added succesfully' + JSON.stringify(record2Save));
       } else {
         await logging.error(configuration, authResponse.accessToken, response.error, jobName);
       }
 
       return response.success;
     } else {
-      await logging.info(
-        configuration,
-        authResponse.accessToken,
-        'Participant already recorded',
-        '',
-        existingParticipant,
-        jobName,
-      );
+      console.log('Participant already recorded' + JSON.stringify(existingParticipant));
       return true;
     }
   } catch (error) {
@@ -282,15 +253,7 @@ async function getUserByMail(email) {
       authResponse.accessToken,
     );
     if (adResponse.success && adResponse.data.value.length) {
-      await logging.info(
-        configuration,
-        authResponse.accessToken,
-        'Loaded participant user data',
-        '',
-        adResponse,
-        jobName,
-      );
-
+      console.log('Loaded participant user data' + JSON.stringify(adResponse));
       return adResponse.data.value[0];
     }
     return undefined;
@@ -363,6 +326,7 @@ async function patchMeeting(meetingId, processedReports) {
       response = await provider.apiPatch(path, authResponse.accessToken, {
         fields: {
           Processedreports: processedReports.join('#'),
+          Processed: true,
         },
       });
     if (response.success) {
