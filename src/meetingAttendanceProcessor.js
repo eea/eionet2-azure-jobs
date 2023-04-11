@@ -15,7 +15,7 @@ async function processMeetings(config, authResp) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'Number of meetings to process: ' + meetings.length,
+      'Number of meetings to process for attendance: ' + meetings.length,
       '',
       {},
       jobName,
@@ -236,7 +236,19 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
 
       return response.success;
     } else {
-      console.log('Participant already recorded' + JSON.stringify(existingParticipant));
+      const participantId = existingParticipant.id,
+        path =
+          auth.apiConfigWithSite.uri +
+          'lists/' +
+          configuration.MeetingParticipantsListId +
+          '/items/' +
+          participantId;
+      await provider.apiPatch(path, authResponse.accessToken, {
+        fields: {
+          Participated: true,
+        },
+      });
+      console.log('Meeting participant updated succesfully ' + participantId);
       return true;
     }
   } catch (error) {

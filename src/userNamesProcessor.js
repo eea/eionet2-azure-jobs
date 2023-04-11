@@ -26,21 +26,28 @@ async function processUsers(configuration, authResponse) {
 
 async function loadUsers(listId, authResponse) {
   //set filterDate 30 days ago
-  let filterDate = new Date(new Date().setDate(new Date().getDate() - 30));
+  const filterDate = new Date(new Date().setDate(new Date().getDate() - 30));
 
-  const response = await provider.apiGet(
-    auth.apiConfigWithSite.uri +
+  let path =
+      auth.apiConfigWithSite.uri +
       'lists/' +
       listId +
       "/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
       filterDate +
       "'",
-    authResponse.accessToken,
-  );
-  if (response.success) {
-    return response.data.value;
+    result = [];
+
+  while (path) {
+    const response = await provider.apiGet(path, authResponse.accessToken);
+    if (response.success) {
+      result = result.concat(response.data.value);
+      path = response.data['@odata.nextLink'];
+    } else {
+      path = undefined;
+    }
   }
-  return [];
+
+  return result;
 }
 
 //Check if user has correct displayName and update it if not.
