@@ -26,17 +26,24 @@ async function processSignedInUsers(configuration, authResponse) {
 }
 
 async function loadUsers(listId, authResponse) {
-  const response = await provider.apiGet(
-    auth.apiConfigWithSite.uri +
+  let path =
+      auth.apiConfigWithSite.uri +
       'lists/' +
       listId +
       '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq null or fields/SignedIn eq 0',
-    authResponse.accessToken,
-  );
-  if (response.success) {
-    return response.data.value;
+    result = [];
+
+  while (path) {
+    const response = await provider.apiGet(path, authResponse.accessToken);
+    if (response.success) {
+      result = result.concat(response.data.value);
+      path = response.data['@odata.nextLink'];
+    } else {
+      path = undefined;
+    }
   }
-  return [];
+
+  return result;
 }
 
 //Main function the processes each record loaded and checks if user had completed the sing-in process.

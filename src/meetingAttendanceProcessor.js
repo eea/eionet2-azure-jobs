@@ -15,7 +15,7 @@ async function processMeetings(config, authResp) {
     await logging.info(
       configuration,
       authResponse.accessToken,
-      'Number of meetings to process: ' + meetings.length,
+      'Number of meetings to process for attendance: ' + meetings.length,
       '',
       {},
       jobName,
@@ -67,11 +67,11 @@ async function processMeeting(meeting) {
       const joinMeetingId = meetingFields.JoinMeetingId.split(' ').join(''),
         meetingResponse = await provider.apiGet(
           apiRoot +
-            'users/' +
-            userId +
-            "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
-            joinMeetingId +
-            "'",
+          'users/' +
+          userId +
+          "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
+          joinMeetingId +
+          "'",
           authResponse.accessToken,
         ),
         processedReports = meetingFields.Processedreports
@@ -100,13 +100,13 @@ async function processMeeting(meeting) {
               for (const report of filteredReports) {
                 const reportDetailsResponse = await provider.apiGet(
                   apiRoot +
-                    'users/' +
-                    userId +
-                    '/onlineMeetings/' +
-                    meetingId +
-                    '/attendanceReports/' +
-                    report.id +
-                    '?$expand=attendanceRecords',
+                  'users/' +
+                  userId +
+                  '/onlineMeetings/' +
+                  meetingId +
+                  '/attendanceReports/' +
+                  report.id +
+                  '?$expand=attendanceRecords',
                   authResponse.accessToken,
                 );
 
@@ -116,15 +116,15 @@ async function processMeeting(meeting) {
                   !hasAttendanceRecords &&
                     console.log(
                       'No attendance records found for report id: ' +
-                        report.id +
-                        JSON.stringify(reportDetailsResponse),
+                      report.id +
+                      JSON.stringify(reportDetailsResponse),
                     );
 
                   hasAttendanceRecords &&
                     console.log(
                       'Attendance records loaded: ' +
-                        report.id +
-                        JSON.stringify(reportDetailsResponse),
+                      report.id +
+                      JSON.stringify(reportDetailsResponse),
                     );
 
                   for (const attendanceRecord of reportDetailsResponse.data.attendanceRecords) {
@@ -157,7 +157,7 @@ async function processMeeting(meeting) {
           } else {
             console.log(
               'Missing attendance reports. No user has joined so far the meeting.' +
-                JSON.stringify(meetingFields),
+              JSON.stringify(meetingFields),
             );
           }
         } else {
@@ -174,9 +174,9 @@ async function processMeeting(meeting) {
           configuration,
           authResponse.accessToken,
           'Unable to load meeting with id and manager specified userId: ' +
-            userId +
-            ' ' +
-            meetingResponse.error,
+          userId +
+          ' ' +
+          meetingResponse.error,
           jobName,
         );
         return meetingResponse.error;
@@ -222,10 +222,10 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
       };
 
       const path =
-          auth.apiConfigWithSite.uri +
-          'lists/' +
-          configuration.MeetingParticipantsListId +
-          '/items',
+        auth.apiConfigWithSite.uri +
+        'lists/' +
+        configuration.MeetingParticipantsListId +
+        '/items',
         response = await provider.apiPost(path, authResponse.accessToken, record2Save);
 
       if (response.success) {
@@ -236,7 +236,14 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
 
       return response.success;
     } else {
-      console.log('Participant already recorded' + JSON.stringify(existingParticipant));
+      const participantId = existingParticipant.id,
+        path = auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingParticipantsListId + '/items/' + participantId;
+      await provider.apiPatch(path, authResponse.accessToken, {
+        fields: {
+          Participated: true,
+        },
+      });
+      console.log('Meeting participant updated succesfully ' + participantId);
       return true;
     }
   } catch (error) {
@@ -322,7 +329,7 @@ async function getADUserId(lookupId) {
 async function patchMeeting(meetingId, processedReports) {
   try {
     const path =
-        auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId,
+      auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId,
       response = await provider.apiPatch(path, authResponse.accessToken, {
         fields: {
           Processedreports: processedReports.join('#'),

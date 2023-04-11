@@ -1,5 +1,5 @@
 const axios = require('axios');
-const processor = require('./meetingProcessor');
+const processor = require('./meetingAttendanceProcessor');
 
 jest.mock('axios');
 jest.mock('@azure/msal-node');

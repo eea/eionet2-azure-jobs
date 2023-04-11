@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const provider = require('./src/provider');
 const auth = require('./src/auth');
-const meetingProcessor = require('./src/meetingProcessor'),
+const meetingAttendanceProcessor = require('./src/meetingAttendanceProcessor'),
     userNamesProcessor = require('./src/userNamesProcessor'),
     signedInUsersProcessor = require('./src/signedInUsersProcessor');
 
@@ -32,7 +32,7 @@ async function main() {
     const authResponse = await auth.getToken(auth.tokenRequest),
         configuration = await getConfiguration(authResponse.accessToken);
     if (configuration) {
-        await meetingProcessor.processMeetings(configuration, authResponse);
+        await meetingAttendanceProcessor.processMeetings(configuration, authResponse);
         await signedInUsersProcessor.processSignedInUsers(configuration, authResponse);
         await userNamesProcessor.processUsers(configuration, authResponse);
     }
