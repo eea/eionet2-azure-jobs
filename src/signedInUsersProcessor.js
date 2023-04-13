@@ -75,9 +75,9 @@ async function processUser(user, configuration, authResponse) {
             await logging.info(
               configuration,
               authResponse.accessToken,
-              'User with the following id marked as signedIn: ' + userFields.id,
+              'User marked as signedIn: ' + userFields.Title,
               '',
-              {},
+              userFields,
               jobName,
             );
             await patchSPUser(
@@ -95,7 +95,7 @@ async function processUser(user, configuration, authResponse) {
         await logging.error(
           configuration,
           authResponse.accessToken,
-          'User with the following id was not found in AD ' + userFields.ADUserId,
+          'User was not found in AD: ' + userFields.Title,
           jobName,
         );
       }
