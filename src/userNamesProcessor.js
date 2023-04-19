@@ -109,7 +109,7 @@ async function patchUser(userId, displayName, configuration, accessToken) {
       await logging.info(
         configuration,
         accessToken,
-        'User with the following id was updated: ' + userId,
+        'User name was updated: ' + displayName,
         '',
         {},
         jobName,

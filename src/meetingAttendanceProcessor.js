@@ -52,7 +52,8 @@ async function processMeeting(meeting) {
   const apiRoot = auth.apiConfig.uri,
     meetingFields = meeting.fields;
 
-  const userId = await getADUserId(meetingFields.MeetingmanagerLookupId);
+  const userId = await getADUserId(meetingFields.MeetingmanagerLookupId),
+    meetingTitle = meetingFields.Title;
   if (!userId) {
     await logging.error(
       configuration,
@@ -134,14 +135,9 @@ async function processMeeting(meeting) {
 
                   hasAttendanceRecords &&
                     reportProcessedYN &&
-                    (await logging.info(
-                      configuration,
-                      authResponse.accessToken,
-                      'Meeting participants updated',
-                      '',
-                      report.id,
-                      jobName,
-                    ));
+                    console.log(
+                      'Meeting participants updated for attendance report id: ' + report.id,
+                    );
 
                   //Add reportId to processed list
                   reportProcessedYN && processedReports.push(report.id);
@@ -150,7 +146,7 @@ async function processMeeting(meeting) {
               }
 
               //Mark meeting as processed
-              await patchMeeting(meetingFields.id, processedReports);
+              await patchMeeting(meetingFields.id, meetingTitle, processedReports);
             } else {
               console.log('No new attendance reports found' + JSON.stringify(meetingFields));
             }
@@ -173,7 +169,8 @@ async function processMeeting(meeting) {
         await logging.error(
           configuration,
           authResponse.accessToken,
-          'Unable to load meeting with id and manager specified userId: ' +
+          'Unable to load meeting with id and manager specified:  ' +
+            meetingTitle +
             userId +
             ' ' +
             meetingResponse.error,
@@ -185,7 +182,7 @@ async function processMeeting(meeting) {
       await logging.error(
         configuration,
         authResponse.accessToken,
-        'Missing JoinMeetingId for meeting id: ' + meetingFields.id,
+        'Missing JoinMeetingId for: ' + meetingTitle,
         jobName,
       );
     }
@@ -331,7 +328,7 @@ async function getADUserId(lookupId) {
 }
 
 //Save processed attedance reports to meeting sharepoint record.
-async function patchMeeting(meetingId, processedReports) {
+async function patchMeeting(meetingId, meetingTitle, processedReports) {
   try {
     const path =
         auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId,
@@ -345,7 +342,7 @@ async function patchMeeting(meetingId, processedReports) {
       await logging.info(
         configuration,
         authResponse.accessToken,
-        'Meeting updated succesfully - id: ' + meetingId,
+        'Meeting updated succesfully : ' + meetingTitle,
         '',
         processedReports.join('#'),
         jobName,

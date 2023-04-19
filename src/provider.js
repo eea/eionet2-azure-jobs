@@ -14,6 +14,7 @@ async function apiGet(endpoint, accessToken) {
       data: response.data,
     };
   } catch (error) {
+    console.log(JSON.stringify(error));
     return {
       success: false,
       error: error,
@@ -35,6 +36,7 @@ async function apiPost(endpoint, accessToken, data) {
       data: response.data,
     };
   } catch (error) {
+    console.log(JSON.stringify(error));
     return {
       success: false,
       error: error,
@@ -56,6 +58,7 @@ async function apiPatch(endpoint, accessToken, data) {
       data: response.data,
     };
   } catch (error) {
+    console.log(JSON.stringify(error));
     return {
       success: false,
       error: error,

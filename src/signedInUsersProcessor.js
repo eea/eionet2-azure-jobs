@@ -56,46 +56,66 @@ async function processUser(user, configuration, authResponse) {
       const adUser = await getADUser(configuration, userFields.ADUserId, authResponse.accessToken);
 
       if (adUser) {
-        const response = await provider.apiGet(
+        const registrationDetailsPath =
           apiRoot +
-            "/reports/credentialUserRegistrationDetails?$filter=userDisplayName eq '" +
-            adUser.displayName +
-            "'",
-          authResponse.accessToken,
-        );
-        if (response.success && response.data.value.length) {
-          let responseValue = response.data.value[0];
-          let isMfaRegistered = responseValue.isMfaRegistered;
-          let isSignedIn = adUser.userType == 'Guest' && isMfaRegistered;
-          let signedInDate = adUser.externalUserStateChangeDateTime
-            ? adUser.externalUserStateChangeDateTime
-            : new Date();
+          "reports/credentialUserRegistrationDetails?$filter=userDisplayName eq '" +
+          adUser.displayName +
+          "'";
+        let retry = true,
+          retryCount = 1;
 
-          if (isSignedIn) {
-            await logging.info(
-              configuration,
-              authResponse.accessToken,
-              'User with the following id marked as signedIn: ' + userFields.id,
-              '',
-              {},
-              jobName,
-            );
-            await patchSPUser(
-              userFields.id,
-              {
-                SignedIn: isSignedIn,
-                SignedInDate: signedInDate,
-              },
-              configuration,
-              authResponse.accessToken,
-            );
+        while (retry && retryCount <= 5) {
+          const response = await provider.apiGet(registrationDetailsPath, authResponse.accessToken);
+          if (response.success && response.data.value.length) {
+            retry = false;
+            let responseValue = response.data.value[0];
+            let isMfaRegistered = responseValue.isMfaRegistered;
+            let isSignedIn = adUser.userType == 'Guest' && isMfaRegistered;
+            let signedInDate = adUser.externalUserStateChangeDateTime
+              ? adUser.externalUserStateChangeDateTime
+              : new Date();
+
+            if (isSignedIn) {
+              await logging.info(
+                configuration,
+                authResponse.accessToken,
+                'User marked as signedIn: ' + userFields.Title,
+                '',
+                userFields,
+                jobName,
+              );
+              await patchSPUser(
+                userFields.id,
+                {
+                  SignedIn: isSignedIn,
+                  SignedInDate: signedInDate,
+                },
+                configuration,
+                authResponse.accessToken,
+              );
+            }
+          } else {
+            if (response.error) {
+              const status = response.error.response?.status;
+              //request throttling by graph api
+              if (status == 429) {
+                const retryAfter = response.error.response.headers['retry-after'] || 0;
+                console.log(
+                  'Request throttled by Graph API. Retrying in ' + retryAfter + ' seconds.',
+                );
+
+                retry = true;
+                retryCount++;
+                await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+              }
+            }
           }
         }
       } else {
         await logging.error(
           configuration,
           authResponse.accessToken,
-          'User with the following id was not found in AD ' + userFields.ADUserId,
+          'User was not found in AD: ' + userFields.Title,
           jobName,
         );
       }
@@ -115,6 +135,7 @@ async function getADUser(configuration, userId, accessToken) {
         "'&$select=id,displayName,userType,externalUserState,externalUserStateChangeDateTime",
       accessToken,
     );
+
     if (adResponse.success && adResponse.data.value.length) {
       return adResponse.data.value[0];
     }
