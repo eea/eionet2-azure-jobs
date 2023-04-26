@@ -8,7 +8,7 @@ async function apiGet(endpoint, accessToken) {
   };
 
   try {
-    const response = await axios.default.get(endpoint, options);
+    const response = await axios.default.get(encodeURI(endpoint), options);
     return {
       success: true,
       data: response.data,
@@ -30,7 +30,7 @@ async function apiPost(endpoint, accessToken, data) {
   };
 
   try {
-    const response = await axios.default.post(endpoint, data, options);
+    const response = await axios.default.post(encodeURI(endpoint), data, options);
     return {
       success: true,
       data: response.data,
@@ -52,7 +52,7 @@ async function apiPatch(endpoint, accessToken, data) {
   };
 
   try {
-    const response = await axios.default.patch(endpoint, data, options);
+    const response = await axios.default.patch(encodeURI(endpoint), data, options);
     return {
       success: true,
       data: response.data,

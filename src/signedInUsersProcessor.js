@@ -59,7 +59,7 @@ async function processUser(user, configuration, authResponse) {
         const registrationDetailsPath =
           apiRoot +
           "reports/credentialUserRegistrationDetails?$filter=userDisplayName eq '" +
-          adUser.displayName +
+          adUser.displayName.replace("'", "''") +
           "'";
         let retry = true,
           retryCount = 1;
