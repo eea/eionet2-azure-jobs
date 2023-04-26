@@ -53,7 +53,7 @@ test('processUsers', () => {
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
-    if (url.includes('/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1')) {
+    if (url.includes(encodeURI('/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1'))) {
       return Promise.resolve({
         data: {
           value: [
@@ -90,7 +90,7 @@ test('NFP', () => {
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
-    if (url.includes('/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1')) {
+    if (url.includes(encodeURI('/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1'))) {
       return Promise.resolve({
         data: {
           value: [
@@ -107,7 +107,7 @@ test('NFP', () => {
           ],
         },
       });
-    } else if (url.includes('/users/?$filter=id eq')) {
+    } else if (url.includes(encodeURI('/users/?$filter=id eq'))) {
       return Promise.resolve({
         data: {
           value: [

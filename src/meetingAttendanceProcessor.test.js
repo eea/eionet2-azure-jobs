@@ -60,14 +60,16 @@ test('processMeetings', () => {
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
-    if (url.includes('/items?$expand=fields')) {
+    if (url.includes(encodeURI('/items?$expand=fields'))) {
       return Promise.resolve({
         success: true,
         data: {
           value: [meetingObject],
         },
       });
-    } else if (url.includes('/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq')) {
+    } else if (
+      url.includes(encodeURI('/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq'))
+    ) {
       return Promise.resolve({
         success: true,
         data: {
@@ -79,7 +81,9 @@ test('processMeetings', () => {
         },
       });
     } else if (
-      url.includes('onlineMeetings/9950274a-ba4b-40e1-92d8-8468cced65e3/attendanceReports') &&
+      url.includes(
+        encodeURI('onlineMeetings/9950274a-ba4b-40e1-92d8-8468cced65e3/attendanceReports'),
+      ) &&
       !url.includes('attendanceRecords')
     ) {
       return Promise.resolve({
@@ -99,7 +103,7 @@ test('processMeetings', () => {
           attendanceRecords: [attedanceRecord],
         },
       });
-    } else if (url.includes('/users/?$filter=mail eq')) {
+    } else if (url.includes(encodeURI('/users/?$filter=mail eq'))) {
       return Promise.resolve({
         success: true,
         data: {
@@ -110,7 +114,7 @@ test('processMeetings', () => {
           ],
         },
       });
-    } else if (url.includes('lists/User Information List/items/')) {
+    } else if (url.includes(encodeURI('lists/User Information List/items/'))) {
       return Promise.resolve({
         success: true,
         data: {
@@ -119,7 +123,7 @@ test('processMeetings', () => {
           },
         },
       });
-    } else if (url.includes('users/test@test.com')) {
+    } else if (url.includes(encodeURI('users/test@test.com'))) {
       return Promise.resolve({
         success: true,
         data: {
@@ -142,14 +146,16 @@ test('no attendace reports', () => {
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
-    if (url.includes('/items?$expand=fields')) {
+    if (url.includes(encodeURI('/items?$expand=fields'))) {
       return Promise.resolve({
         success: true,
         data: {
           value: [meetingObject],
         },
       });
-    } else if (url.includes('/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq')) {
+    } else if (
+      url.includes(encodeURI('/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq'))
+    ) {
       return Promise.resolve({
         success: true,
         data: {
@@ -161,7 +167,9 @@ test('no attendace reports', () => {
         },
       });
     } else if (
-      url.includes('onlineMeetings/9950274a-ba4b-40e1-92d8-8468cced65e3/attendanceReports')
+      url.includes(
+        encodeURI('onlineMeetings/9950274a-ba4b-40e1-92d8-8468cced65e3/attendanceReports'),
+      )
     ) {
       return Promise.resolve({
         success: true,
@@ -169,7 +177,7 @@ test('no attendace reports', () => {
           value: [],
         },
       });
-    } else if (url.includes('lists/User Information List/items/')) {
+    } else if (url.includes(encodeURI('lists/User Information List/items/'))) {
       return Promise.resolve({
         success: true,
         data: {
@@ -178,7 +186,7 @@ test('no attendace reports', () => {
           },
         },
       });
-    } else if (url.includes('users/test@test.com')) {
+    } else if (url.includes(encodeURI('users/test@test.com'))) {
       return Promise.resolve({
         success: true,
         data: {
@@ -237,7 +245,7 @@ test('missing meeting id', () => {
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
-    if (url.includes('&$filter=fields/Processed eq 0')) {
+    if (url.includes(encodeURI('&$filter=fields/Processed eq 0'))) {
       return Promise.resolve({
         success: true,
         data: {
@@ -251,7 +259,7 @@ test('missing meeting id', () => {
           ],
         },
       });
-    } else if (url.includes('lists/User Information List/items/')) {
+    } else if (url.includes(encodeURI('lists/User Information List/items/'))) {
       return Promise.resolve({
         success: true,
         data: {
@@ -260,7 +268,7 @@ test('missing meeting id', () => {
           },
         },
       });
-    } else if (url.includes('users/test@test.com')) {
+    } else if (url.includes(encodeURI('users/test@test.com'))) {
       return Promise.resolve({
         success: true,
         data: {
@@ -283,21 +291,23 @@ test('wrong combination id and manager', () => {
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
-    if (url.includes('/items?$expand=fields')) {
+    if (url.includes(encodeURI('/items?$expand=fields'))) {
       return Promise.resolve({
         success: true,
         data: {
           value: [meetingObject],
         },
       });
-    } else if (url.includes('/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq')) {
+    } else if (
+      url.includes(encodeURI('/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq'))
+    ) {
       return Promise.resolve({
         success: true,
         data: {
           value: [],
         },
       });
-    } else if (url.includes('lists/User Information List/items/')) {
+    } else if (url.includes(encodeURI('lists/User Information List/items/'))) {
       return Promise.resolve({
         success: true,
         data: {
@@ -306,7 +316,7 @@ test('wrong combination id and manager', () => {
           },
         },
       });
-    } else if (url.includes('users/test@test.com')) {
+    } else if (url.includes(encodeURI('users/test@test.com'))) {
       return Promise.resolve({
         success: true,
         data: {
