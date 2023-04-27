@@ -24,7 +24,7 @@ async function postUser(index, country, organisation, authResponse, configuratio
     userData.ADUserId = userId;
 
     if (adResponse.success) {
-      const spResponse = await postSpUser(userData, authResponse, configuration, memberships);
+      await postSpUser(userData, authResponse, configuration, memberships);
     }
   }
 }
@@ -82,8 +82,7 @@ async function postSpUser(user, authResponse, configuration, memberships) {
 }
 
 async function generateUsers(configuration, authResponse) {
-  const graphPath = auth.apiConfigWithSite.uri + 'lists/' + configuration.UserListId + '/items',
-    countries = await generateDataHelper.getCountries(configuration, authResponse),
+  const countries = await generateDataHelper.getCountries(configuration, authResponse),
     memberships = await generateDataHelper.getUsersGroups(configuration, authResponse);
 
   for (let i = 3400; i < NO_OF_USERS; i++) {
