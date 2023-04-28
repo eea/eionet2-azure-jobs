@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-async function apiGet(endpoint, accessToken) {
+async function apiGet(endpoint, accessToken, skipEncoding) {
   const options = {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -8,7 +8,10 @@ async function apiGet(endpoint, accessToken) {
   };
 
   try {
-    const response = await axios.default.get(encodeURI(endpoint), options);
+    const response = await axios.default.get(
+      skipEncoding ? endpoint : encodeURI(endpoint),
+      options,
+    );
     return {
       success: true,
       data: response.data,

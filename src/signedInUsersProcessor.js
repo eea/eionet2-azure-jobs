@@ -26,15 +26,16 @@ async function processSignedInUsers(configuration, authResponse) {
 }
 
 async function loadUsers(listId, authResponse) {
-  let path =
+  let path = encodeURI(
       auth.apiConfigWithSite.uri +
-      'lists/' +
-      listId +
-      '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq null or fields/SignedIn eq 0',
+        'lists/' +
+        listId +
+        '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq null or fields/SignedIn eq 0',
+    ),
     result = [];
 
   while (path) {
-    const response = await provider.apiGet(path, authResponse.accessToken);
+    const response = await provider.apiGet(path, authResponse.accessToken, true);
     if (response.success) {
       result = result.concat(response.data.value);
       path = response.data['@odata.nextLink'];
