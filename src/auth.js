@@ -45,7 +45,7 @@ async function getAccessToken() {
   const currentDate = new Date();
 
   if (!_accessToken || _accessToken.expiresOn < currentDate) {
-    _accessToken = await getToken(tokenRequest);
+    _accessToken = await getToken();
   }
   return _accessToken;
 }
