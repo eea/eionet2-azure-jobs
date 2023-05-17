@@ -1,6 +1,6 @@
 {
   "name": "@eeacms/eionet2-azure-jobs",
-  "version": "1.0.12",
+  "version": "1.2.0",
   "description": "[![GitHub release](https://img.shields.io/github/v/release/eea/eionet2-azure-jobs)](https://github.com/eea/eionet2-azure-jobs/releases)",
   "main": "index.js",
   "devDependencies": {
@@ -35,6 +35,7 @@
   "dependencies": {
     "@azure/msal-node": "^1.10.0",
     "axios": "^0.27.2",
+    "date-and-time": "^3.0.0",
     "dotenv": "^16.0.1",
     "pre-commit": "^1.2.2",
     "yargs": "^17.5.1"

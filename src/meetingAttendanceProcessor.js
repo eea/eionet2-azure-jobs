@@ -3,18 +3,16 @@ const provider = require('./provider'),
   auth = require('./auth'),
   jobName = 'UpdateMeetingParticipants';
 
-let configuration = undefined,
-  authResponse = undefined;
+let configuration = undefined;
 
 //Entry point function for meeting processing functionality
-async function processMeetings(config, authResp) {
+async function processMeetings(config) {
   configuration = config;
-  authResponse = authResp;
   try {
     const meetings = await loadMeetings(configuration.MeetingListId);
     await logging.info(
       configuration,
-      authResponse.accessToken,
+
       'Number of meetings to process for attendance: ' + meetings.length,
       '',
       {},
@@ -24,7 +22,7 @@ async function processMeetings(config, authResp) {
       await processMeeting(meeting);
     }
   } catch (error) {
-    await logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
     return error;
   }
 }
@@ -38,7 +36,6 @@ async function loadMeetings(meetingListId) {
       "'";
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri + 'lists/' + meetingListId + '/items?$expand=fields' + filterString,
-    authResponse.accessToken,
   );
   if (response.success) {
     return response.data.value;
@@ -57,7 +54,7 @@ async function processMeeting(meeting) {
   if (!userId) {
     await logging.error(
       configuration,
-      authResponse.accessToken,
+
       'Missing meeting manager for meeting id: ' + meetingFields.id,
       jobName,
     );
@@ -73,7 +70,6 @@ async function processMeeting(meeting) {
             "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
             joinMeetingId +
             "'",
-          authResponse.accessToken,
         ),
         processedReports = meetingFields.Processedreports
           ? meetingFields.Processedreports.split('#')
@@ -85,7 +81,6 @@ async function processMeeting(meeting) {
         //load all attendance reports for meeting
         const attendanceReportsResponse = await provider.apiGet(
           apiRoot + 'users/' + userId + '/onlineMeetings/' + meetingId + '/attendanceReports',
-          authResponse.accessToken,
         );
 
         if (attendanceReportsResponse.success) {
@@ -108,7 +103,6 @@ async function processMeeting(meeting) {
                     '/attendanceReports/' +
                     report.id +
                     '?$expand=attendanceRecords',
-                  authResponse.accessToken,
                 );
 
                 if (reportDetailsResponse.success) {
@@ -159,7 +153,7 @@ async function processMeeting(meeting) {
         } else {
           await logging.error(
             configuration,
-            authResponse.accessToken,
+
             attendanceReportsResponse.error,
             jobName,
           );
@@ -168,7 +162,7 @@ async function processMeeting(meeting) {
       } else {
         await logging.error(
           configuration,
-          authResponse.accessToken,
+
           'Unable to load meeting with id and manager specified:  ' +
             meetingTitle +
             userId +
@@ -181,13 +175,13 @@ async function processMeeting(meeting) {
     } else {
       await logging.error(
         configuration,
-        authResponse.accessToken,
+
         'Missing JoinMeetingId for: ' + meetingTitle,
         jobName,
       );
     }
   } catch (error) {
-    await logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
     return false;
   }
 }
@@ -223,12 +217,12 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
           'lists/' +
           configuration.MeetingParticipantsListId +
           '/items',
-        response = await provider.apiPost(path, authResponse.accessToken, record2Save);
+        response = await provider.apiPost(path, record2Save);
 
       if (response.success) {
         console.log('Meeting participant added succesfully' + JSON.stringify(record2Save));
       } else {
-        await logging.error(configuration, authResponse.accessToken, response.error, jobName);
+        await logging.error(configuration, response.error, jobName);
       }
 
       return response.success;
@@ -240,7 +234,7 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
           configuration.MeetingParticipantsListId +
           '/items/' +
           participantId;
-      await provider.apiPatch(path, authResponse.accessToken, {
+      await provider.apiPatch(path, {
         fields: {
           Participated: true,
         },
@@ -249,7 +243,7 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
       return true;
     }
   } catch (error) {
-    await logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
     return false;
   }
 }
@@ -259,7 +253,6 @@ async function getUserByMail(email) {
   try {
     const adResponse = await provider.apiGet(
       auth.apiConfig.uri + "/users/?$filter=mail eq '" + email?.replace("'", "''") + "'",
-      authResponse.accessToken,
     );
     if (adResponse.success && adResponse.data.value.length) {
       console.log('Loaded participant user data' + JSON.stringify(adResponse));
@@ -267,7 +260,7 @@ async function getUserByMail(email) {
     }
     return undefined;
   } catch (error) {
-    await logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
     return undefined;
   }
 }
@@ -288,14 +281,14 @@ async function getParticipant(meetingId, email, name) {
       path += "Participantname eq '" + name + "'";
     }
 
-    const response = await provider.apiGet(path, authResponse.accessToken);
+    const response = await provider.apiGet(path);
     if (response.success) {
       return response.data.value[0];
     }
 
     return undefined;
   } catch (error) {
-    await logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
     return undefined;
   }
 }
@@ -305,14 +298,11 @@ async function getADUserId(lookupId) {
     try {
       let path = auth.apiConfigWithSite.uri + 'lists/User Information List/items/' + lookupId;
 
-      const response = await provider.apiGet(path, authResponse.accessToken);
+      const response = await provider.apiGet(path);
       if (response.success) {
         const userInfo = response.data.fields;
 
-        const adResponse = await provider.apiGet(
-          auth.apiConfig.uri + 'users/' + userInfo.EMail,
-          authResponse.accessToken,
-        );
+        const adResponse = await provider.apiGet(auth.apiConfig.uri + 'users/' + userInfo.EMail);
         if (adResponse.success) {
           return adResponse.data.id;
         }
@@ -320,7 +310,7 @@ async function getADUserId(lookupId) {
 
       return undefined;
     } catch (error) {
-      await logging.error(configuration, authResponse.accessToken, error, jobName);
+      await logging.error(configuration, error, jobName);
       return undefined;
     }
   }
@@ -332,7 +322,7 @@ async function patchMeeting(meetingId, meetingTitle, processedReports) {
   try {
     const path =
         auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId,
-      response = await provider.apiPatch(path, authResponse.accessToken, {
+      response = await provider.apiPatch(path, {
         fields: {
           Processedreports: processedReports.join('#'),
           Processed: true,
@@ -341,7 +331,7 @@ async function patchMeeting(meetingId, meetingTitle, processedReports) {
     if (response.success) {
       await logging.info(
         configuration,
-        authResponse.accessToken,
+
         'Meeting updated succesfully : ' + meetingTitle,
         '',
         processedReports.join('#'),
@@ -352,7 +342,7 @@ async function patchMeeting(meetingId, meetingTitle, processedReports) {
 
     return undefined;
   } catch (error) {
-    await logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
     return undefined;
   }
 }

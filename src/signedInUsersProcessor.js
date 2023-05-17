@@ -4,28 +4,28 @@ const logging = require('./logging'),
   jobName = 'UpdateSignedInUsers';
 
 //Entry point function for processing users that have signed it in Eionet
-async function processSignedInUsers(configuration, authResponse) {
+async function processSignedInUsers(configuration) {
   try {
-    const users = await loadUsers(configuration.UserListId, authResponse);
+    const users = await loadUsers(configuration.UserListId);
 
     await logging.info(
       configuration,
-      authResponse.accessToken,
+
       'Number of user for signedIn to process: ' + users.length,
       '',
       {},
       jobName,
     );
     for (const user of users) {
-      await processUser(user, configuration, authResponse);
+      await processUser(user, configuration);
     }
   } catch (error) {
-    await logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
     return error;
   }
 }
 
-async function loadUsers(listId, authResponse) {
+async function loadUsers(listId) {
   let path = encodeURI(
       auth.apiConfigWithSite.uri +
         'lists/' +
@@ -35,7 +35,7 @@ async function loadUsers(listId, authResponse) {
     result = [];
 
   while (path) {
-    const response = await provider.apiGet(path, authResponse.accessToken, true);
+    const response = await provider.apiGet(path, true);
     if (response.success) {
       result = result.concat(response.data.value);
       path = response.data['@odata.nextLink'];
@@ -48,13 +48,13 @@ async function loadUsers(listId, authResponse) {
 }
 
 //Main function the processes each record loaded and checks if user had completed the sing-in process.
-async function processUser(user, configuration, authResponse) {
+async function processUser(user, configuration) {
   const apiRoot = auth.apiConfig.uri,
     userFields = user.fields;
 
   try {
     if (userFields.ADUserId) {
-      const adUser = await getADUser(configuration, userFields.ADUserId, authResponse.accessToken);
+      const adUser = await getADUser(configuration, userFields.ADUserId);
 
       if (adUser) {
         const registrationDetailsPath =
@@ -66,7 +66,7 @@ async function processUser(user, configuration, authResponse) {
           retryCount = 1;
 
         while (retry && retryCount <= 5) {
-          const response = await provider.apiGet(registrationDetailsPath, authResponse.accessToken);
+          const response = await provider.apiGet(registrationDetailsPath);
           if (response.success && response.data.value.length) {
             retry = false;
             let responseValue = response.data.value[0];
@@ -79,7 +79,7 @@ async function processUser(user, configuration, authResponse) {
             if (isSignedIn) {
               await logging.info(
                 configuration,
-                authResponse.accessToken,
+
                 'User marked as signedIn: ' + userFields.Title,
                 '',
                 userFields,
@@ -92,7 +92,6 @@ async function processUser(user, configuration, authResponse) {
                   SignedInDate: signedInDate,
                 },
                 configuration,
-                authResponse.accessToken,
               );
             }
           } else {
@@ -115,26 +114,25 @@ async function processUser(user, configuration, authResponse) {
       } else {
         await logging.error(
           configuration,
-          authResponse.accessToken,
+
           'User was not found in AD: ' + userFields.Title,
           jobName,
         );
       }
     }
   } catch (error) {
-    await logging.error(configuration, authResponse.accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
   }
 }
 
 //Load AD user information
-async function getADUser(configuration, userId, accessToken) {
+async function getADUser(configuration, userId) {
   try {
     const adResponse = await provider.apiGet(
       auth.apiConfig.uri +
         "/users/?$filter=id eq '" +
         userId +
         "'&$select=id,displayName,userType,externalUserState,externalUserStateChangeDateTime",
-      accessToken,
     );
 
     if (adResponse.success && adResponse.data.value.length) {
@@ -142,17 +140,17 @@ async function getADUser(configuration, userId, accessToken) {
     }
     return undefined;
   } catch (error) {
-    await logging.error(configuration, accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
     return undefined;
   }
 }
 
 //Mark user as signedIn in sharepoint list
-async function patchSPUser(userId, userData, configuration, accessToken) {
+async function patchSPUser(userId, userData, configuration) {
   try {
     const path =
         auth.apiConfigWithSite.uri + 'lists/' + configuration.UserListId + '/items/' + userId,
-      response = await provider.apiPatch(path, accessToken, {
+      response = await provider.apiPatch(path, {
         fields: {
           SignedIn: userData.SignedIn,
           SignedInDate: userData.SignedInDate,
@@ -164,7 +162,7 @@ async function patchSPUser(userId, userData, configuration, accessToken) {
 
     return undefined;
   } catch (error) {
-    await logging.error(configuration, accessToken, error, jobName);
+    await logging.error(configuration, error, jobName);
     return undefined;
   }
 }

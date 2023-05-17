@@ -1,4 +1,5 @@
 const axios = require('axios');
+const auth = require('./auth');
 const processor = require('./meetingAttendanceProcessor');
 
 jest.mock('axios');
@@ -53,10 +54,6 @@ const meetingObject = {
   };
 
 test('processMeetings', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -133,16 +130,16 @@ test('processMeetings', () => {
     }
   });
 
-  return processor
-    .processMeetings('', authResponse)
-    .then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  return processor.processMeetings('').then((data) => expect(data).toEqual(undefined));
 });
 
 test('no attendace reports', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -196,16 +193,16 @@ test('no attendace reports', () => {
     }
   });
 
-  return processor
-    .processMeetings('', authResponse)
-    .then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  return processor.processMeetings('').then((data) => expect(data).toEqual(undefined));
 });
 
 test('missing meeting manager', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -232,16 +229,16 @@ test('missing meeting manager', () => {
     }
   });
 
-  return processor
-    .processMeetings('', authResponse)
-    .then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  return processor.processMeetings('').then((data) => expect(data).toEqual(undefined));
 });
 
 test('missing meeting id', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -278,16 +275,16 @@ test('missing meeting id', () => {
     }
   });
 
-  return processor
-    .processMeetings('', authResponse)
-    .then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  return processor.processMeetings('').then((data) => expect(data).toEqual(undefined));
 });
 
 test('wrong combination id and manager', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -326,7 +323,11 @@ test('wrong combination id and manager', () => {
     }
   });
 
-  return processor
-    .processMeetings('', authResponse)
-    .then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  return processor.processMeetings('').then((data) => expect(data).toEqual(undefined));
 });

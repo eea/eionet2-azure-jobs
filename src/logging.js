@@ -1,11 +1,12 @@
 const axios = require('axios'),
   auth = require('./auth');
 
-async function info(configuration, accessToken, message, apiPath, data, jobName) {
+async function info(configuration, message, apiPath, data, jobName) {
   console.log(message);
+  const token = await auth.getAccessToken();
   const options = {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token.accessToken}`,
     },
   };
   const jobTitle = jobName || 'Eionet2-Azure-Jobs';
@@ -36,11 +37,12 @@ async function info(configuration, accessToken, message, apiPath, data, jobName)
   }
 }
 
-async function error(configuration, accessToken, error, jobName) {
+async function error(configuration, error, jobName) {
   console.log(error);
+  const token = await auth.getAccessToken();
   const options = {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token.accessToken}`,
     },
   };
 
