@@ -1,9 +1,11 @@
 const axios = require('axios');
+const auth = require('./auth');
 
-async function apiGet(endpoint, accessToken, skipEncoding) {
+async function apiGet(endpoint, skipEncoding) {
+  const token = await auth.getAccessToken();
   const options = {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token.accessToken}`,
     },
   };
 
@@ -25,10 +27,11 @@ async function apiGet(endpoint, accessToken, skipEncoding) {
   }
 }
 
-async function apiPost(endpoint, accessToken, data) {
+async function apiPost(endpoint, data) {
+  const token = await auth.getAccessToken();
   const options = {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token.accessToken}`,
     },
   };
 
@@ -47,10 +50,11 @@ async function apiPost(endpoint, accessToken, data) {
   }
 }
 
-async function apiPatch(endpoint, accessToken, data) {
+async function apiPatch(endpoint, data) {
+  const token = await auth.getAccessToken();
   const options = {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token.accessToken}`,
     },
   };
 

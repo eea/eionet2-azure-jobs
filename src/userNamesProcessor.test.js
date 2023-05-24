@@ -1,4 +1,5 @@
 const axios = require('axios');
+const auth = require('./auth');
 const processor = require('./userNamesProcessor');
 
 jest.mock('axios');
@@ -6,10 +7,6 @@ jest.mock('@azure/msal-node');
 jest.mock('./auth');
 
 test('processUsers', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -42,14 +39,16 @@ test('processUsers', () => {
     }
   });
 
-  processor.processUsers('', authResponse).then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  processor.processUsers('').then((data) => expect(data).toEqual(undefined));
 });
 
 test('processUsers', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -79,14 +78,16 @@ test('processUsers', () => {
     }
   });
 
-  processor.processUsers('', authResponse).then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  processor.processUsers('').then((data) => expect(data).toEqual(undefined));
 });
 
 test('NFP', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -121,14 +122,16 @@ test('NFP', () => {
     }
   });
 
-  processor.processUsers('', authResponse).then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  processor.processUsers('').then((data) => expect(data).toEqual(undefined));
 });
 
 test('AD country', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -164,5 +167,11 @@ test('AD country', () => {
     }
   });
 
-  processor.processUsers('', authResponse).then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  processor.processUsers('').then((data) => expect(data).toEqual(undefined));
 });

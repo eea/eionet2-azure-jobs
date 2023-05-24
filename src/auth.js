@@ -36,17 +36,23 @@ const apiConfigWithSite = {
  */
 const cca = new msal.ConfidentialClientApplication(msalConfig);
 
-/**
- * Acquires token with client credentials.
- * @param {object} tokenRequest
- */
-async function getToken(tokenRequest) {
+async function getToken() {
   return await cca.acquireTokenByClientCredential(tokenRequest);
+}
+
+let _accessToken = undefined;
+async function getAccessToken() {
+  const currentDate = new Date();
+
+  if (!_accessToken || _accessToken.expiresOn < currentDate) {
+    _accessToken = await getToken();
+  }
+  return _accessToken;
 }
 
 module.exports = {
   apiConfig: apiConfig,
   apiConfigWithSite: apiConfigWithSite,
   tokenRequest: tokenRequest,
-  getToken: getToken,
+  getAccessToken: getAccessToken,
 };

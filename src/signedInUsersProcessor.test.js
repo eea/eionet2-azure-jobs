@@ -1,4 +1,5 @@
 const axios = require('axios');
+const auth = require('./auth');
 const processor = require('./signedInUsersProcessor');
 
 jest.mock('axios');
@@ -6,10 +7,6 @@ jest.mock('@azure/msal-node');
 jest.mock('./auth');
 
 test('processSignedInUsers', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -72,14 +69,16 @@ test('processSignedInUsers', () => {
     }
   });
 
-  processor.processSignedInUsers('', authResponse).then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  processor.processSignedInUsers('').then((data) => expect(data).toEqual(undefined));
 });
 
 test('processSignedInUsers', () => {
-  const authResponse = {
-    accessToken: {},
-  };
-
   axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
   axios.get.mockImplementation((url) => {
@@ -123,14 +122,16 @@ test('processSignedInUsers', () => {
     }
   });
 
-  processor.processSignedInUsers('', authResponse).then((data) => expect(data).toEqual(undefined));
+  auth.getAccessToken.mockImplementation(() => {
+    return {
+      accessToken: {},
+    };
+  });
+
+  processor.processSignedInUsers('').then((data) => expect(data).toEqual(undefined));
 });
 
 /*test('processSignedInUsers', () => {
-    const authResponse = {
-        accessToken: {},
-    };
-
     axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
     axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
     axios.get.mockImplementation((url) => {
@@ -155,6 +156,6 @@ test('processSignedInUsers', () => {
     });
 
     processor
-        .processSignedInUsers('', authResponse)
+        .processSignedInUsers('')
         .then((data) => expect(data).toEqual(undefined));
 });*/
