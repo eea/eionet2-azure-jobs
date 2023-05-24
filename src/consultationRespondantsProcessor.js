@@ -60,7 +60,6 @@ async function loadConsulations(listId) {
   return result;
 }
 
-//Check if user has correct displayName and update it if not.
 async function processConsultation(consultation, configuration) {
   const consultationFields = consultation.fields;
 
@@ -91,7 +90,7 @@ async function getCountries(configuration, consultation) {
           await logging.info(
             configuration,
             consultation.Title +
-              ': Cannot find column "Country" in specificed list ' +
+              ': Cannot find column "Country" in specified list ' +
               consultation.ConsultationListId,
             '',
             {},
