@@ -77,7 +77,7 @@ async function getCountries(configuration, consultation) {
 
   if (consultation.ConsultationListId) {
     const path =
-      auth.apiConfigWithSite.uri +
+      auth.apiConfigWithSecondarySite.uri +
       'lists/' +
       consultation.ConsultationListId +
       '/items?$expand=fields';
