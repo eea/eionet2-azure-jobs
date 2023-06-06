@@ -30,6 +30,10 @@ const apiConfigWithSite = {
   uri: process.env.GRAPH_ENDPOINT + '/beta/sites/' + process.env.SHAREPOINT_SITE_ID + '/',
 };
 
+const apiConfigWithSecondarySite = {
+  uri: process.env.GRAPH_ENDPOINT + '/beta/sites/' + process.env.SECONDARY_SHAREPOINT_SITE_ID + '/',
+};
+
 /**
  * Initialize a confidential client application. For more info, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-node/docs/initialize-confidential-client-application.md
@@ -53,6 +57,7 @@ async function getAccessToken() {
 module.exports = {
   apiConfig: apiConfig,
   apiConfigWithSite: apiConfigWithSite,
+  apiConfigWithSecondarySite: apiConfigWithSecondarySite,
   tokenRequest: tokenRequest,
   getAccessToken: getAccessToken,
 };
