@@ -1,0 +1,166 @@
+[
+  {
+    "Acronym": "EU",
+    "CountryName": "European Union"
+  },
+  {
+    "Acronym": "UN",
+    "CountryName": "United Nations"
+  },
+  {
+    "Acronym": "AL",
+    "CountryName": "Albania"
+  },
+  {
+    "Acronym": "AT",
+    "CountryName": "Austria"
+  },
+  {
+    "Acronym": "BA",
+    "CountryName": "Bosnia and Herzegovina"
+  },
+  {
+    "Acronym": "BE",
+    "CountryName": "Belgium"
+  },
+  {
+    "Acronym": "BG",
+    "CountryName": "Bulgaria"
+  },
+  {
+    "Acronym": "CH",
+    "CountryName": "Switzerland"
+  },
+  {
+    "Acronym": "CY",
+    "CountryName": "Cyprus"
+  },
+  {
+    "Acronym": "CZ",
+    "CountryName": "Czech Republic"
+  },
+  {
+    "Acronym": "DE",
+    "CountryName": "Germany"
+  },
+  {
+    "Acronym": "DK",
+    "CountryName": "Denmark"
+  },
+  {
+    "Acronym": "EE",
+    "CountryName": "Estonia"
+  },
+  {
+    "Acronym": "EL",
+    "CountryName": "Greece"
+  },
+  {
+    "Acronym": "ES",
+    "CountryName": "Spain"
+  },
+  {
+    "Acronym": "FI",
+    "CountryName": "Finland"
+  },
+  {
+    "Acronym": "FR",
+    "CountryName": "France"
+  },
+  {
+    "Acronym": "UK",
+    "CountryName": "United Kingdom"
+  },
+  {
+    "Acronym": "HR",
+    "CountryName": "Croatia"
+  },
+  {
+    "Acronym": "HU",
+    "CountryName": "Hungary"
+  },
+  {
+    "Acronym": "IE",
+    "CountryName": "Ireland"
+  },
+  {
+    "Acronym": "IS",
+    "CountryName": "Iceland"
+  },
+  {
+    "Acronym": "IT",
+    "CountryName": "Italy"
+  },
+  {
+    "Acronym": "LI",
+    "CountryName": "Liechtenstein"
+  },
+  {
+    "Acronym": "LT",
+    "CountryName": "Lithuania"
+  },
+  {
+    "Acronym": "LU",
+    "CountryName": "Luxembourg"
+  },
+  {
+    "Acronym": "LV",
+    "CountryName": "Latvia"
+  },
+  {
+    "Acronym": "ME",
+    "CountryName": "Montenegro"
+  },
+  {
+    "Acronym": "MK",
+    "CountryName": "North Macedonia"
+  },
+  {
+    "Acronym": "MT",
+    "CountryName": "Malta"
+  },
+  {
+    "Acronym": "NL",
+    "CountryName": "Netherlands"
+  },
+  {
+    "Acronym": "NO",
+    "CountryName": "Norway"
+  },
+  {
+    "Acronym": "PL",
+    "CountryName": "Poland"
+  },
+  {
+    "Acronym": "PT",
+    "CountryName": "Portugal"
+  },
+  {
+    "Acronym": "RO",
+    "CountryName": "Romania"
+  },
+  {
+    "Acronym": "RS",
+    "CountryName": "Serbia"
+  },
+  {
+    "Acronym": "SE",
+    "CountryName": "Sweden"
+  },
+  {
+    "Acronym": "SI",
+    "CountryName": "Slovenia"
+  },
+  {
+    "Acronym": "SK",
+    "CountryName": "Slovakia"
+  },
+  {
+    "Acronym": "TR",
+    "CountryName": "Turkey"
+  },
+  {
+    "Acronym": "XK",
+    "CountryName": "Kosovo"
+  }
+]

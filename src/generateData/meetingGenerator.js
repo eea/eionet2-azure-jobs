@@ -6,7 +6,7 @@ const provider = require('../provider');
 const NO_OF_MEETINGS = 500;
 const MEEETING_TYPES = ['Hybrid', 'Online', 'Physical'];
 
-async function postMeeting(index, countries, groups, authResponse, configuration) {
+async function postMeeting(index, countries, groups, configuration) {
   let path = auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items';
   const randomDate = generateDataHelper.getRandomDate(),
     endDate = new Date(randomDate);
@@ -26,15 +26,13 @@ async function postMeeting(index, countries, groups, authResponse, configuration
     },
   };
 
-  console.log(JSON.stringify(meetingRecord));
-  const meetingResponse = await provider.apiPost(path, authResponse.accessToken, meetingRecord);
+  const meetingResponse = await provider.apiPost(path, meetingRecord);
 
   if (meetingResponse.success) {
     const meetingId = meetingResponse.data.id;
 
     for (let i = 0; i < 19; i++) {
       const countryIndex = Math.floor(Math.random() * (countries.length - 2) + 1);
-
       const registered = meetingRecord.MeetingType != 'Online' && i % 2 == 0;
       const participantRecord = {
         fields: {
@@ -50,19 +48,19 @@ async function postMeeting(index, countries, groups, authResponse, configuration
 
       path =
         auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingParticipantsListId + '/items';
-      await provider.apiPost(path, authResponse.accessToken, participantRecord);
+      await provider.apiPost(path, participantRecord);
     }
   }
 }
 
-async function generateMeetings(configuration, authResponse) {
-  const countries = await generateDataHelper.getCountries(configuration, authResponse),
-    groups = await generateDataHelper.getMeetingsGroups(configuration, authResponse);
+async function generateMeetings(configuration) {
+  const countries = await generateDataHelper.getCountries(configuration),
+    groups = await generateDataHelper.getMeetingsGroups(configuration);
 
   for (let i = 0; i < NO_OF_MEETINGS; i++) {
     const groupsIndex = Math.floor(Math.random() * (groups.length + 1));
 
-    postMeeting(i, countries, groups.slice(groupsIndex), authResponse, configuration);
+    await postMeeting(i, countries, groups.slice(groupsIndex), configuration);
   }
 }
 
