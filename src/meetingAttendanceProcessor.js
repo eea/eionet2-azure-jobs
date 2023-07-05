@@ -30,9 +30,12 @@ async function processMeetings(config) {
 async function loadMeetings(meetingListId) {
   //get meetings from last 24 hours or meetings not processed so far
   const last24Hours = new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
+    next24hours = new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
     filterString =
-      "&$filter=fields/Processed eq 0 or fields/Meetingstart ge '" +
+      "&$filter=(fields/Processed eq 0 or fields/Meetingstart ge '" +
       last24Hours.toDateString() +
+      "') and fields/Meetingstart le '" +
+      next24hours.toDateString() +
       "'";
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri + 'lists/' + meetingListId + '/items?$expand=fields' + filterString,
