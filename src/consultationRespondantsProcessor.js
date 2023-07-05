@@ -9,23 +9,12 @@ let noOfUpdateRecords = 0;
 async function processConsultations(configuration) {
   try {
     const consultations = await loadConsulations(configuration.ConsultationListId);
-    await logging.info(
-      configuration,
-      'Number of consultations for respondants loaded: ' + consultations.length,
-      '',
-      {},
-      jobName,
-    );
+    console.log('Number of consultations for respondants loaded: ' + consultations.length);
     for (const consultation of consultations) {
       await processConsultation(consultation, configuration);
     }
-    await logging.info(
-      configuration,
-      'Updated ' + noOfUpdateRecords + ' running consultations',
-      '',
-      {},
-      jobName,
-    );
+
+    console.log('Updated ' + noOfUpdateRecords + ' running consultations');
   } catch (error) {
     await logging.error(configuration, error, jobName);
     return error;

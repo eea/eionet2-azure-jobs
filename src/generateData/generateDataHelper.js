@@ -1,10 +1,9 @@
 const provider = require('../provider'),
   auth = require('../auth');
 
-async function getCountries(configuration, authResponse) {
+async function getCountries(configuration) {
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri + '/lists/' + configuration.UserListId + '/columns',
-    authResponse.accessToken,
   );
   const columns = response.data.value;
 
@@ -35,10 +34,9 @@ async function getOrganisations(configuration, authResponse, country) {
   });
 }
 
-async function getConsultationsGroups(configuration, authResponse) {
+async function getConsultationsGroups(configuration) {
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri + '/lists/' + configuration.ConsultationListId + '/columns',
-    authResponse.accessToken,
   );
   const columns = response.data.value;
 
@@ -48,10 +46,9 @@ async function getConsultationsGroups(configuration, authResponse) {
   }
 }
 
-async function getMeetingsGroups(configuration, authResponse) {
+async function getMeetingsGroups(configuration) {
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri + '/lists/' + configuration.MeetingListId + '/columns',
-    authResponse.accessToken,
   );
   const columns = response.data.value;
 
@@ -61,10 +58,9 @@ async function getMeetingsGroups(configuration, authResponse) {
   }
 }
 
-async function getUsersGroups(configuration, authResponse) {
+async function getUsersGroups(configuration) {
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri + '/lists/' + configuration.UserListId + '/columns',
-    authResponse.accessToken,
   );
   const columns = response.data.value;
 

@@ -6,6 +6,7 @@ require('dotenv').config();
 const provider = require('./src/provider');
 const auth = require('./src/auth');
 const meetingAttendanceProcessor = require('./src/meetingAttendanceProcessor'),
+    meetingFieldsProcessor = require('./src/meetingFieldsProcessor'),
     userNamesProcessor = require('./src/userNamesProcessor'),
     signedInUsersProcessor = require('./src/signedInUsersProcessor'),
     consultationRespondantsProcessor = require('./src/consultationRespondantsProcessor');
@@ -35,6 +36,7 @@ async function main() {
         process.env.RUN_SIGN_IN_USERS_JOB === 'true' && await signedInUsersProcessor.processSignedInUsers(configuration);
         process.env.RUN_USER_NAMES_JOB === 'true' && await userNamesProcessor.processUsers(configuration);
         process.env.RUN_CONSULTATION_RESPONDANTS_JOB === 'true' && await consultationRespondantsProcessor.processConsultations(configuration);
+        process.env.RUN_MEETING_FIELDS_JOB === 'true' && await meetingFieldsProcessor.processMeetings(configuration);
     }
 };
 
