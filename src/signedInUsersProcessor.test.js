@@ -107,13 +107,10 @@ test('processSignedInUsers', () => {
           ],
         },
       });
-    } else if (url.includes(encodeURI('reports/credentialUserRegistrationDetails'))) {
-      return Promise.resolve({
-        data: {
-          value: [],
-        },
-      });
-    } else if (url.includes(encodeURI('/users/?$filter=id eq'))) {
+    } else if (
+      url.includes(encodeURI('reports/credentialUserRegistrationDetails')) ||
+      url.includes(encodeURI('/users/?$filter=id eq'))
+    ) {
       return Promise.resolve({
         data: {
           value: [],
@@ -130,32 +127,3 @@ test('processSignedInUsers', () => {
 
   processor.processSignedInUsers('').then((data) => expect(data).toEqual(undefined));
 });
-
-/*test('processSignedInUsers', () => {
-    axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
-    axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
-    axios.get.mockImplementation((url) => {
-        if (url.includes('filter=fields/SignedIn eq null')) {
-            return Promise.resolve({
-                success: false,
-                data: {},
-            });
-        } else if (url.includes('reports/credentialUserRegistrationDetails')) {
-            return Promise.resolve({
-                data: {
-                    value: [],
-                },
-            });
-        } else if (url.includes('/users/?$filter=id eq')) {
-            return Promise.resolve({
-                data: {
-                    value: [],
-                },
-            });
-        }
-    });
-
-    processor
-        .processSignedInUsers('')
-        .then((data) => expect(data).toEqual(undefined));
-});*/
