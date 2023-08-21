@@ -3,10 +3,14 @@ const provider = require('./provider'),
   auth = require('./auth'),
   jobName = 'UpdateMeetingFields';
 
-let configuration = undefined;
+let configuration = undefined,
+  //if set to true ignores filters and updates all meetings.
+  _updateAll = false;
 
-//Entry point function for meeting processing functionality
-async function processMeetings(config) {
+
+//Entry point function for meeting fields processing functionality
+async function processMeetings(config, updateAll) {
+  _updateAll = updateAll;
   configuration = config;
   try {
     const meetings = await loadMeetings(configuration.MeetingListId);
@@ -28,12 +32,12 @@ async function processMeetings(config) {
 }
 
 async function loadMeetings(meetingListId) {
-  //get meetings from last 24 hours or meetings not processed so far
+  //get meetings from last 4 weeks to current date
   const currentDate = new Date(),
     last4Weeks = new Date(currentDate.setDate(currentDate.getDate() - 4 * 7)),
-    filterString = "&$filter=fields/Meetingstart ge '" + last4Weeks.toDateString() + "'";
+    filterString = _updateAll ? '' : "&$filter=fields/Meetingstart ge '" + last4Weeks.toDateString() + "'";
   const response = await provider.apiGet(
-    auth.apiConfigWithSite.uri + 'lists/' + meetingListId + '/items?$expand=fields' + filterString,
+    auth.apiConfigWithSite.uri + 'lists/' + meetingListId + '/items?$expand=fields&$top=999' + filterString,
   );
   if (response.success) {
     return response.data.value;
@@ -65,11 +69,11 @@ async function getMeetingJoinInfo(meeting) {
       if (userId) {
         const response = await provider.apiGet(
           auth.apiConfig.uri +
-            '/users/' +
-            userId +
-            "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
-            joinMeetingId +
-            "'",
+          '/users/' +
+          userId +
+          "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
+          joinMeetingId +
+          "'",
         );
         if (response.success && response.data.value && response.data.value.length > 0) {
           return response.data.value[0];
@@ -83,20 +87,28 @@ async function getMeetingJoinInfo(meeting) {
   }
 }
 
-//Get participants from participants sharepoint list
+//Get participants from the sharepoint list
 async function getParticipants(meetingId) {
   try {
-    let path =
+    let path = encodeURI(
       auth.apiConfigWithSite.uri +
       'lists/' +
       configuration.MeetingParticipantsListId +
-      '/items?$expand=fields&$filter=fields/MeetingtitleLookupId eq ' +
-      meetingId;
+      '/items?$expand=fields&$top=999&$filter=fields/MeetingtitleLookupId eq ' +
+      meetingId),
+      result = [];
 
-    const response = await provider.apiGet(path);
-    if (response.success) {
-      return response.data.value;
+    while (path) {
+      const response = await provider.apiGet(path, true);
+      if (response.success) {
+        result = result.concat(response.data.value);
+        path = response.data['@odata.nextLink'];
+      } else {
+        path = undefined;
+      }
     }
+
+    return result;
 
     return undefined;
   } catch (error) {
@@ -137,19 +149,19 @@ async function patchMeeting(meeting, meetingJoinInfo, participants) {
   const currentDate = new Date(),
     meetingStartDate = new Date(meeting.Meetingstart),
     //update registered count if meeting has bot yes started
-    updateRegistered = meetingStartDate >= currentDate,
+    updateRegistered = _updateAll || meetingStartDate >= currentDate,
     //update participated count if MeetingStartDate is between now and 4 weeks in the future
-    updateParticipated =
+    updateParticipated = _updateAll || (
       meetingStartDate <= currentDate &&
-      currentDate <= new Date(meetingStartDate.setDate(meetingStartDate.getDate() + 4 * 7));
+      currentDate <= new Date(meetingStartDate.setDate(meetingStartDate.getDate() + 4 * 7)));
 
   try {
     const path =
-        auth.apiConfigWithSite.uri +
-        'lists/' +
-        configuration.MeetingListId +
-        '/items/' +
-        meeting.id,
+      auth.apiConfigWithSite.uri +
+      'lists/' +
+      configuration.MeetingListId +
+      '/items/' +
+      meeting.id,
       response = await provider.apiPatch(path, {
         fields: {
           ...(meetingJoinLink && { MeetingLink: meetingJoinLink }),

@@ -36,7 +36,8 @@ async function main() {
         process.env.RUN_SIGN_IN_USERS_JOB === 'true' && await signedInUsersProcessor.processSignedInUsers(configuration);
         process.env.RUN_USER_NAMES_JOB === 'true' && await userNamesProcessor.processUsers(configuration);
         process.env.RUN_CONSULTATION_RESPONDANTS_JOB === 'true' && await consultationRespondantsProcessor.processConsultations(configuration);
-        process.env.RUN_MEETING_FIELDS_JOB === 'true' && await meetingFieldsProcessor.processMeetings(configuration);
+        process.env.RUN_MEETING_FIELDS_JOB === 'true' && await meetingFieldsProcessor.processMeetings(configuration, false);
+        process.env.RUN_MEETING_FIELDS_JOB_ALL === 'true' && await meetingFieldsProcessor.processMeetings(configuration, true);
     }
 };
 
