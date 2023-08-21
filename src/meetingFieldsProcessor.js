@@ -115,8 +115,6 @@ async function getParticipants(meetingId) {
     }
 
     return result;
-
-    return undefined;
   } catch (error) {
     await logging.error(configuration, error, jobName);
     return undefined;
