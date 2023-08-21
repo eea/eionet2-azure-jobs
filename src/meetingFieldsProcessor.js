@@ -7,7 +7,6 @@ let configuration = undefined,
   //if set to true ignores filters and updates all meetings.
   _updateAll = false;
 
-
 //Entry point function for meeting fields processing functionality
 async function processMeetings(config, updateAll) {
   _updateAll = updateAll;
@@ -35,9 +34,15 @@ async function loadMeetings(meetingListId) {
   //get meetings from last 4 weeks to current date
   const currentDate = new Date(),
     last4Weeks = new Date(currentDate.setDate(currentDate.getDate() - 4 * 7)),
-    filterString = _updateAll ? '' : "&$filter=fields/Meetingstart ge '" + last4Weeks.toDateString() + "'";
+    filterString = _updateAll
+      ? ''
+      : "&$filter=fields/Meetingstart ge '" + last4Weeks.toDateString() + "'";
   const response = await provider.apiGet(
-    auth.apiConfigWithSite.uri + 'lists/' + meetingListId + '/items?$expand=fields&$top=999' + filterString,
+    auth.apiConfigWithSite.uri +
+      'lists/' +
+      meetingListId +
+      '/items?$expand=fields&$top=999' +
+      filterString,
   );
   if (response.success) {
     return response.data.value;
@@ -69,11 +74,11 @@ async function getMeetingJoinInfo(meeting) {
       if (userId) {
         const response = await provider.apiGet(
           auth.apiConfig.uri +
-          '/users/' +
-          userId +
-          "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
-          joinMeetingId +
-          "'",
+            '/users/' +
+            userId +
+            "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
+            joinMeetingId +
+            "'",
         );
         if (response.success && response.data.value && response.data.value.length > 0) {
           return response.data.value[0];
@@ -91,11 +96,12 @@ async function getMeetingJoinInfo(meeting) {
 async function getParticipants(meetingId) {
   try {
     let path = encodeURI(
-      auth.apiConfigWithSite.uri +
-      'lists/' +
-      configuration.MeetingParticipantsListId +
-      '/items?$expand=fields&$top=999&$filter=fields/MeetingtitleLookupId eq ' +
-      meetingId),
+        auth.apiConfigWithSite.uri +
+          'lists/' +
+          configuration.MeetingParticipantsListId +
+          '/items?$expand=fields&$top=999&$filter=fields/MeetingtitleLookupId eq ' +
+          meetingId,
+      ),
       result = [];
 
     while (path) {
@@ -151,17 +157,18 @@ async function patchMeeting(meeting, meetingJoinInfo, participants) {
     //update registered count if meeting has bot yes started
     updateRegistered = _updateAll || meetingStartDate >= currentDate,
     //update participated count if MeetingStartDate is between now and 4 weeks in the future
-    updateParticipated = _updateAll || (
-      meetingStartDate <= currentDate &&
-      currentDate <= new Date(meetingStartDate.setDate(meetingStartDate.getDate() + 4 * 7)));
+    updateParticipated =
+      _updateAll ||
+      (meetingStartDate <= currentDate &&
+        currentDate <= new Date(meetingStartDate.setDate(meetingStartDate.getDate() + 4 * 7)));
 
   try {
     const path =
-      auth.apiConfigWithSite.uri +
-      'lists/' +
-      configuration.MeetingListId +
-      '/items/' +
-      meeting.id,
+        auth.apiConfigWithSite.uri +
+        'lists/' +
+        configuration.MeetingListId +
+        '/items/' +
+        meeting.id,
       response = await provider.apiPatch(path, {
         fields: {
           ...(meetingJoinLink && { MeetingLink: meetingJoinLink }),
