@@ -13,14 +13,7 @@ async function processMeetings(config, updateAll) {
   configuration = config;
   try {
     const meetings = await loadMeetings(configuration.MeetingListId);
-    await logging.info(
-      configuration,
-
-      'Number of meetings to process for fields update: ' + meetings.length,
-      '',
-      {},
-      jobName,
-    );
+    console.log('Number of meetings to process for fields update: ' + meetings.length);
     for (const meeting of meetings) {
       await processMeeting(meeting);
     }
@@ -179,13 +172,7 @@ async function patchMeeting(meeting, meetingJoinInfo, participants) {
         },
       });
     if (response.success) {
-      await logging.info(
-        configuration,
-        'Meeting fields updated succesfully : ' + meeting.Title,
-        '',
-        {},
-        jobName,
-      );
+      console.log('Meeting fields updated succesfully : ' + meeting.Title);
       return response.data;
     }
 
