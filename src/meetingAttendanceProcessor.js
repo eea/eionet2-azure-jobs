@@ -10,14 +10,7 @@ async function processMeetings(config) {
   configuration = config;
   try {
     const meetings = await loadMeetings(configuration.MeetingListId);
-    await logging.info(
-      configuration,
-
-      'Number of meetings to process for attendance: ' + meetings.length,
-      '',
-      {},
-      jobName,
-    );
+    console.log('Number of meetings to process for attendance: ' + meetings.length);
     for (const meeting of meetings) {
       await processMeeting(meeting);
     }
@@ -177,12 +170,7 @@ async function processMeeting(meeting) {
         return meetingResponse.error;
       }
     } else {
-      await logging.error(
-        configuration,
-
-        'Missing JoinMeetingId for: ' + meetingTitle,
-        jobName,
-      );
+      console.log('Missing JoinMeetingId for: ' + meetingTitle);
     }
   } catch (error) {
     await logging.error(configuration, error, jobName);

@@ -7,14 +7,7 @@ const logging = require('./logging'),
 async function processUsers(configuration) {
   try {
     const users = await loadUsers(configuration.UserListId);
-    await logging.info(
-      configuration,
-
-      'Number of users for userNameUpdates loaded: ' + users.length,
-      '',
-      {},
-      jobName,
-    );
+    console.log('Number of users for userNameUpdates loaded: ' + users.length);
     for (const user of users) {
       await processUser(user, configuration);
     }
