@@ -139,11 +139,7 @@ function mapObligations(configuration, instruments, clients, obligations, spObli
       (obligation2Save.ReportingFrequencyMonths = Number.parseInt(
         obligation.ReportingFrequencyMonths,
       ));
-    if (
-      obligation.Deadline < currentDate &&
-      obligation2Save.ReportingFrequencyMonths === 0 &&
-      obligation.NextDeadline2
-    ) {
+    if (obligation.NextDeadline < currentDate && obligation.NextDeadline2) {
       obligation2Save.Deadline = obligation.NextDeadline2;
     } else {
       obligation2Save.Deadline = obligation.NextDeadline;
