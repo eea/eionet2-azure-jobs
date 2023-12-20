@@ -60,16 +60,19 @@ async function processUser(user, configuration) {
 
 //load Ad user based on id
 async function getADUser(configuration, userId) {
-  const adResponse = await provider.apiGet(
-    auth.apiConfig.uri +
-      "/users/?$filter=id eq '" +
-      userId +
-      "'&$select=id,displayName,givenName,surname,country",
-  );
-  if (adResponse.success && adResponse.data.value.length) {
-    return adResponse.data.value[0];
+  try {
+    const adResponse = await provider.apiGet(
+      auth.apiConfig.uri +
+        "users/?$filter=id eq '" +
+        userId +
+        "'&$select=id,displayName,givenName,surname,country",
+    );
+    if (adResponse.success && adResponse.data.value.length) {
+      return adResponse.data.value[0];
+    }
+  } catch (error) {
+    return undefined;
   }
-  return undefined;
 }
 
 //Construct correct displayName for user
@@ -94,7 +97,7 @@ function buildDisplayName(adUser, spUser) {
 //Update AD user display name
 async function patchUser(userId, displayName, configuration) {
   try {
-    const apiPath = auth.apiConfig.uri + '/users/' + userId,
+    const apiPath = auth.apiConfig.uri + 'users/' + userId,
       response = await provider.apiPatch(apiPath, {
         displayName: displayName,
       });
