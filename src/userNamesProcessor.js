@@ -48,7 +48,7 @@ async function loadUsers(listId) {
 async function processUser(user, configuration) {
   const userFields = user.fields;
 
-  const adUser = await getADUser(configuration, userFields.ADUserId);
+  const adUser = await getADUser(userFields.ADUserId);
   if (adUser) {
     const displayName = buildDisplayName(adUser, userFields);
 
@@ -59,20 +59,17 @@ async function processUser(user, configuration) {
 }
 
 //load Ad user based on id
-async function getADUser(configuration, userId) {
-  try {
-    const adResponse = await provider.apiGet(
-      auth.apiConfig.uri +
-        "users/?$filter=id eq '" +
-        userId +
-        "'&$select=id,displayName,givenName,surname,country",
-    );
-    if (adResponse.success && adResponse.data.value.length) {
-      return adResponse.data.value[0];
-    }
-  } catch (error) {
-    return undefined;
+async function getADUser(userId) {
+  const adResponse = await provider.apiGet(
+    auth.apiConfig.uri +
+      "users/?$filter=id eq '" +
+      userId +
+      "'&$select=id,displayName,givenName,surname,country",
+  );
+  if (adResponse.success && adResponse.data.value.length) {
+    return adResponse.data.value[0];
   }
+  return undefined;
 }
 
 //Construct correct displayName for user

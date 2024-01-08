@@ -70,7 +70,9 @@ function getCountryName(countryCode) {
 
 //Load signed in users for processing.
 async function loadUsers(configuration) {
-  let path = encodeURI(`${auth.apiConfigWithSite.uri}lists/${configuration.UserListId}/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1`),
+  let path = encodeURI(
+      `${auth.apiConfigWithSite.uri}lists/${configuration.UserListId}/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1`,
+    ),
     result = [];
 
   while (path) {
