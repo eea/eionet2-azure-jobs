@@ -117,17 +117,19 @@ async function getExistingGroups(userId, groupIds) {
   return result;
 }
 
-async function addTag(teamId, name, userId) {
+async function addTag(configuration, teamId, name, userId, email) {
   let response = await provider.apiGet(
     `${auth.apiConfig.uri}/teams/${teamId}/tags?$filter=displayName eq '${name}'`,
   );
+
+  let postResponse;
 
   if (response?.success && response?.data?.value?.length) {
     const existingTag = response.data.value[0],
       tagMemberIdResponse = await getTag(teamId, existingTag.id, userId);
 
     if (!tagMemberIdResponse?.data?.value?.length) {
-      await provider.apiPost(
+      postResponse = await provider.apiPost(
         `${auth.apiConfig.uri}/teams/${teamId}/tags/${existingTag.id}/members`,
         {
           userId: userId,
@@ -135,7 +137,7 @@ async function addTag(teamId, name, userId) {
       );
     }
   } else {
-    await provider.apiPost(`${auth.apiConfig.uri}/teams/${teamId}/tags/`, {
+    postResponse = await provider.apiPost(`${auth.apiConfig.uri}/teams/${teamId}/tags/`, {
       displayName: name,
       members: [
         {
@@ -143,6 +145,16 @@ async function addTag(teamId, name, userId) {
         },
       ],
     });
+  }
+
+  if (postResponse && !postResponse.success) {
+    await logging.info(
+      configuration,
+      `The tag ${name} could not be applied for user with email ${email}`,
+      '',
+      {},
+      jobName,
+    );
   }
 }
 
@@ -196,20 +208,52 @@ async function processUser(user, configuration) {
 
       for (const groupId of inconsistentGroupIds) {
         await postUserGroup(groupId, userId);
+      }
 
-        const groupMapping = userMappings.filter((m) => m.O365GroupId === groupId);
-        groupMapping[0]?.Tag && addTag(groupId, getCountryName(user.Country), userId);
+      let tagMappings = userMappings.filter((m) => m.Tag);
+      //if not update all tags will update only tags from inconsistencies
+      !configuration.UpdateAllTags &&
+        (tagMappings = tagMappings.filter((t) => inconsistentGroupIds.includes(t.O365GroupId)));
+
+      const tags = [...new Set(tagMappings)];
+      for (const m of tags) {
+        await addTag(configuration, m.O365GroupId, m.Tag, userId, userFields.Email);
+        await addTag(
+          configuration,
+          m.O365GroupId,
+          getCountryName(userFields.Country),
+          userId,
+          userFields.Email,
+        );
       }
 
       //check and add nfp tag
       if (userFields.NFP) {
-        await addTag(configuration.MainEionetGroupId, 'National-Focal-Points', userId);
+        await addTag(
+          configuration,
+          configuration.MainEionetGroupId,
+          'National-Focal-Points',
+          userId,
+          userFields.Email,
+        );
+        await addTag(
+          configuration,
+          configuration.MainEionetGroupId,
+          getCountryName(userFields.Country),
+          userId,
+          userFields.Email,
+        );
       }
 
       if (inconsistentGroupIds.length) {
-        console.log(
+        await logging.info(
+          configuration,
           `User with email ${userFields.Email} and ADUserId ${userFields.ADUserId} had inconsistencies and was updated`,
+          '',
+          {},
+          jobName,
         );
+
         noOfUpdated++;
       }
     } catch (err) {
