@@ -153,6 +153,15 @@ async function patchMeeting(meeting, meetingJoinInfo, participants) {
       (meetingStartDate <= currentDate &&
         currentDate <= new Date(meetingStartDate.setDate(meetingStartDate.getDate() + 4 * 7)));
 
+  const countries = [
+    ...new Set(
+      participants
+        .filter((p) => p.fields.Participated)
+        .map((p) => p.fields.Countries)
+        .filter((c) => !!c),
+    ),
+  ];
+
   try {
     const path =
         auth.apiConfigWithSite.uri +
@@ -168,6 +177,10 @@ async function patchMeeting(meeting, meetingJoinInfo, participants) {
           }),
           ...(updateRegistered && {
             NoOfRegistered: participants.filter((p) => p.fields.Registered).length,
+          }),
+          ...(countries && {
+            'Countries@odata.type': 'Collection(Edm.String)',
+            Countries: countries,
           }),
         },
       });
