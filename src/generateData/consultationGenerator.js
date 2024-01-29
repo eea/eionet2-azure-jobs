@@ -12,7 +12,7 @@ async function postConsultation(path, index, countries, groups, authResponse) {
 
   deadline.setDate(randomDate.getDate() + 30);
   closed.setDate(randomDate.getDate() + 15);
-  const consultationType = index % 2 == 0 ? 'Consultation' : 'Inquiry';
+  const consultationType = index % 2 == 0 ? 'Consultation' : 'Enquiry';
   const record2Save = {
     fields: {
       ConsultationType: consultationType,

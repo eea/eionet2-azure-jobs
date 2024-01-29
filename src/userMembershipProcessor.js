@@ -21,7 +21,7 @@ async function processUsers(configuration) {
       }
       await processUser(user, configuration);
     }
-    console.log(`Number of users with inconsistencies: ${noOfUpdated}`);
+    console.log(`Number of users with AD groups inconsistencies: ${noOfUpdated}`);
   } catch (error) {
     await logging.error(configuration, error, jobName);
     return error;
@@ -147,27 +147,21 @@ async function addTag(configuration, teamId, name, userId, email) {
     });
   }
 
-  if (postResponse && !postResponse.success) {
-    await logging.info(
-      configuration,
-      `The tag ${name} could not be applied for user with email ${email}`,
-      '',
-      {},
-      jobName,
-    );
+  if (postResponse) {
+    const message = postResponse.success
+      ? `The tag ${name} was applied succesfully for user with email ${email}.`
+      : `Applying the tag ${name} for user with email ${email} returned and error. Please check the tag.`;
+
+    await logging.info(configuration, message, '', {}, jobName);
   }
 }
 
 async function getTag(teamId, tagId, userId) {
-  let response;
-  try {
-    //endpoint returns 404 Not Found if user doesn't have the tag. Error is logged in logging list, but is must not break the save flow.
-    response = await provider.apiGet(
-      `${auth.apiConfig.uri}/teams/${teamId}/tags/${tagId}/members?$filter=userId eq '${userId}'`,
-    );
-  } catch (err) {
-    console.log(err);
-  }
+  //endpoint returns 404 Not Found if user doesn't have the tag. Error is logged in logging list.
+  const response = await provider.apiGet(
+    `${auth.apiConfig.uri}/teams/${teamId}/tags/${tagId}/members?$filter=userId eq '${userId}'`,
+  );
+
   return response;
 }
 
