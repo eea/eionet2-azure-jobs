@@ -50,7 +50,6 @@ async function processMeeting(meeting) {
   if (!userId) {
     await logging.error(
       configuration,
-
       'Missing meeting manager for meeting id: ' + meetingFields.id,
       jobName,
     );
@@ -132,27 +131,29 @@ async function processMeeting(meeting) {
                   //Add reportId to processed list
                   reportProcessedYN && processedReports.push(report.id);
                   reportProcessedYN = true;
+                } else {
+                  await logging.error(
+                    configuration,
+                    `Unable to load attendanceRecords for meeting ${meetingTitle} and organizer with id ${userId}`,
+                    jobName,
+                  );
                 }
               }
 
               //Mark meeting as processed
               await patchMeeting(meetingFields.id, meetingTitle, processedReports);
             } else {
-              console.log('No new attendance reports found' + JSON.stringify(meetingFields));
+              console.log(`No new attendance reports found' ${JSON.stringify(meetingFields)}`);
             }
           } else {
             console.log(
-              'Missing attendance reports. No user has joined so far the meeting.' +
-                JSON.stringify(meetingFields),
+              `Missing attendance reports. No user has joined so far the meeting. ${JSON.stringify(
+                meetingFields,
+              )}`,
             );
           }
         } else {
-          await logging.error(
-            configuration,
-
-            attendanceReportsResponse.error,
-            jobName,
-          );
+          await logging.error(configuration, attendanceReportsResponse.error, jobName);
           return attendanceReportsResponse.error;
         }
       } else {
