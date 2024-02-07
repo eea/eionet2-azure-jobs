@@ -50,7 +50,6 @@ async function processMeeting(meeting) {
   if (!userId) {
     await logging.error(
       configuration,
-
       'Missing meeting manager for meeting id: ' + meetingFields.id,
       jobName,
     );
@@ -102,11 +101,16 @@ async function processMeeting(meeting) {
                 );
 
                 if (reportDetailsResponse.success) {
-                  const hasAttendanceRecords =
-                    reportDetailsResponse.data.attendanceRecords.length > 0;
+                  //for unknown reasons sometime the api returns empty records which should be processed.
+                  const validAttendanceRecords =
+                      reportDetailsResponse.data.attendanceRecords?.filter(
+                        (ar) => ar.emailAddress || ar.identity?.displayName,
+                      ),
+                    hasAttendanceRecords = validAttendanceRecords.length > 0;
+
                   !hasAttendanceRecords &&
                     console.log(
-                      'No attendance records found for report id: ' +
+                      'No valid attendance records found for report id: ' +
                         report.id +
                         JSON.stringify(reportDetailsResponse),
                     );
@@ -118,7 +122,7 @@ async function processMeeting(meeting) {
                         JSON.stringify(reportDetailsResponse),
                     );
 
-                  for (const attendanceRecord of reportDetailsResponse.data.attendanceRecords) {
+                  for (const attendanceRecord of validAttendanceRecords) {
                     const result = await processAttendanceRecord(meetingFields, attendanceRecord);
                     reportProcessedYN = reportProcessedYN && result;
                   }
@@ -132,27 +136,29 @@ async function processMeeting(meeting) {
                   //Add reportId to processed list
                   reportProcessedYN && processedReports.push(report.id);
                   reportProcessedYN = true;
+                } else {
+                  await logging.error(
+                    configuration,
+                    `Unable to load attendanceRecords for meeting ${meetingTitle} and organizer with id ${userId}`,
+                    jobName,
+                  );
                 }
               }
 
               //Mark meeting as processed
               await patchMeeting(meetingFields.id, meetingTitle, processedReports);
             } else {
-              console.log('No new attendance reports found' + JSON.stringify(meetingFields));
+              console.log(`No new attendance reports found' ${JSON.stringify(meetingFields)}`);
             }
           } else {
             console.log(
-              'Missing attendance reports. No user has joined so far the meeting.' +
-                JSON.stringify(meetingFields),
+              `Missing attendance reports. No user has joined so far the meeting. ${JSON.stringify(
+                meetingFields,
+              )}`,
             );
           }
         } else {
-          await logging.error(
-            configuration,
-
-            attendanceReportsResponse.error,
-            jobName,
-          );
+          await logging.error(configuration, attendanceReportsResponse.error, jobName);
           return attendanceReportsResponse.error;
         }
       } else {
@@ -182,16 +188,15 @@ async function processMeeting(meeting) {
 async function processAttendanceRecord(meetingFields, attendanceRecord) {
   let userData = undefined;
 
+  const lowerEmail = attendanceRecord?.emailAddress?.toLowerCase(),
+    lowerName = attendanceRecord?.identity?.displayName?.toLowerCase();
+
   try {
-    if (attendanceRecord.emailAddress) {
-      userData = await getUserByMail(attendanceRecord.emailAddress);
+    if (lowerEmail) {
+      userData = await getUserByMail(lowerEmail);
     }
 
-    const existingParticipant = await getParticipant(
-      meetingFields.id,
-      attendanceRecord.emailAddress,
-      attendanceRecord.identity.displayName,
-    );
+    const existingParticipant = await getParticipant(meetingFields.id, lowerEmail, lowerName);
 
     if (!existingParticipant) {
       const record2Save = {
@@ -213,8 +218,6 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
 
       if (response.success) {
         console.log('Meeting participant added succesfully' + JSON.stringify(record2Save));
-      } else {
-        await logging.error(configuration, response.error, jobName);
       }
 
       return response.success;
@@ -225,14 +228,16 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
           'lists/' +
           configuration.MeetingParticipantsListId +
           '/items/' +
-          participantId;
-      await provider.apiPatch(path, {
-        fields: {
-          Participated: true,
-        },
-      });
-      console.log('Meeting participant updated succesfully ' + participantId);
-      return true;
+          participantId,
+        response = await provider.apiPatch(path, {
+          fields: {
+            Participated: true,
+          },
+        });
+      if (response.success) {
+        console.log('Meeting participant updated succesfully ' + participantId);
+      }
+      return response.success;
     }
   } catch (error) {
     await logging.error(configuration, error, jobName);
@@ -242,47 +247,37 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
 
 //Get AD user by email address
 async function getUserByMail(email) {
-  try {
-    const adResponse = await provider.apiGet(
-      auth.apiConfig.uri + "/users/?$filter=mail eq '" + email?.replace("'", "''") + "'",
-    );
-    if (adResponse.success && adResponse.data.value.length) {
-      console.log('Loaded participant user data' + JSON.stringify(adResponse));
-      return adResponse.data.value[0];
-    }
-    return undefined;
-  } catch (error) {
-    await logging.error(configuration, error, jobName);
-    return undefined;
+  const adResponse = await provider.apiGet(
+    auth.apiConfig.uri + "/users/?$filter=mail eq '" + email?.replace("'", "''") + "'",
+  );
+  if (adResponse.success && adResponse.data.value.length) {
+    console.log('Loaded participant user data' + JSON.stringify(adResponse));
+    return adResponse.data.value[0];
   }
+  return undefined;
 }
 
 //Get participant record from participants sharepoint list
 async function getParticipant(meetingId, email, name) {
-  try {
-    let path =
-      auth.apiConfigWithSite.uri +
-      'lists/' +
-      configuration.MeetingParticipantsListId +
-      '/items?$filter=fields/MeetingtitleLookupId eq ' +
-      meetingId +
-      ' and fields/';
-    if (email) {
-      path += "EMail eq '" + email?.replace("'", "''") + "'";
-    } else {
-      path += "Participantname eq '" + name + "'";
-    }
-
-    const response = await provider.apiGet(path);
-    if (response.success) {
-      return response.data.value[0];
-    }
-
-    return undefined;
-  } catch (error) {
-    await logging.error(configuration, error, jobName);
-    return undefined;
+  let path =
+    auth.apiConfigWithSite.uri +
+    'lists/' +
+    configuration.MeetingParticipantsListId +
+    '/items?$select=id&$filter=fields/MeetingtitleLookupId eq ' +
+    meetingId +
+    ' and fields/';
+  if (email) {
+    path += "EMail eq '" + email?.replace("'", "''") + "'";
+  } else {
+    path += "Participantname eq '" + name + "'";
   }
+
+  const response = await provider.apiGet(path);
+  if (response.success) {
+    return response.data.value[0];
+  }
+
+  return undefined;
 }
 
 async function getADUserId(lookupId) {

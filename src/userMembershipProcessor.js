@@ -150,7 +150,7 @@ async function addTag(configuration, teamId, name, userId, email) {
   if (postResponse) {
     const message = postResponse.success
       ? `The tag ${name} was applied succesfully for user with email ${email}.`
-      : `Applying the tag ${name} for user with email ${email} returned and error. Please check the tag.`;
+      : `Applying the tag ${name} for user with email ${email} returned an error. Please check the tag.`;
 
     await logging.info(configuration, message, '', {}, jobName);
   }
