@@ -56,9 +56,12 @@ async function processMeeting(meeting) {
     return;
   }
   try {
-    if (meetingFields.JoinMeetingId) {
-      const joinMeetingId = meetingFields.JoinMeetingId.split(' ').join(''),
-        meetingResponse = await provider.apiGet(
+    const parsedJoinId = meetingFields.JoinMeetingId?.match(/\d+/g);
+    let joinMeetingId;
+
+    parsedJoinId && (joinMeetingId = parsedJoinId.join(''));
+    if (joinMeetingId) {
+      const meetingResponse = await provider.apiGet(
           apiRoot +
             'users/' +
             userId +
@@ -176,7 +179,7 @@ async function processMeeting(meeting) {
         return meetingResponse.error;
       }
     } else {
-      console.log('Missing JoinMeetingId for: ' + meetingTitle);
+      console.log('Missing or invalid JoinMeetingId for: ' + meetingTitle);
     }
   } catch (error) {
     await logging.error(configuration, error, jobName);
