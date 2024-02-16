@@ -206,10 +206,12 @@ async function processUser(user, configuration) {
 
       let tagMappings = userMappings.filter((m) => m.Tag);
       //if not update all tags will update only tags from inconsistencies
-      !configuration.UpdateAllTags &&
-        (tagMappings = tagMappings.filter((t) => inconsistentGroupIds.includes(t.O365GroupId)));
+      const updateAllTags = configuration.UpdateAllTags == 'true';
+      const inconsistentTags = tagMappings.filter((t) =>
+        inconsistentGroupIds.includes(t.O365GroupId),
+      );
 
-      const tags = [...new Set(tagMappings)];
+      const tags = [...new Set(updateAllTags ? tagMappings : inconsistentTags)];
       for (const m of tags) {
         await addTag(configuration, m.O365GroupId, m.Tag, userId, userFields.Email);
         await addTag(
@@ -222,7 +224,7 @@ async function processUser(user, configuration) {
       }
 
       //check and add nfp tag
-      if (userFields.NFP) {
+      if (userFields.NFP && updateAllTags) {
         await addTag(
           configuration,
           configuration.MainEionetGroupId,

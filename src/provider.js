@@ -73,8 +73,32 @@ async function apiPatch(endpoint, data) {
   }
 }
 
+async function apiDelete(endpoint) {
+  const token = await auth.getAccessToken();
+  const options = {
+    headers: {
+      Authorization: `Bearer ${token.accessToken}`,
+    },
+  };
+
+  try {
+    const response = await axios.default.delete(encodeURI(endpoint), options);
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    console.log(JSON.stringify(error));
+    return {
+      success: false,
+      error: error,
+    };
+  }
+}
+
 module.exports = {
   apiGet: apiGet,
   apiPost: apiPost,
   apiPatch: apiPatch,
+  apiDelete: apiDelete,
 };

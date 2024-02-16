@@ -11,6 +11,7 @@ const meetingAttendanceProcessor = require('./src/meetingAttendanceProcessor'),
     signedInUsersProcessor = require('./src/signedInUsersProcessor'),
     consultationRespondantsProcessor = require('./src/consultationRespondantsProcessor'),
     userMembershipsProcessor = require('./src/userMembershipProcessor'),
+    removeUserTagsProcessor = require('./src/removeUserTagsProcessor'),
     obligationsProcessor = require('./src/obligationsProcessor');
 
 async function getConfiguration() {
@@ -41,6 +42,7 @@ async function main() {
         process.env.RUN_MEETING_FIELDS_JOB === 'true' && await meetingFieldsProcessor.processMeetings(configuration, false);
         process.env.RUN_MEETING_FIELDS_JOB_ALL === 'true' && await meetingFieldsProcessor.processMeetings(configuration, true);
         process.env.RUN_USER_MEMBERSHIPS_JOB === 'true' && await userMembershipsProcessor.processUsers(configuration);
+        process.env.RUN_REMOVE_USER_TAGS === 'true' && await removeUserTagsProcessor.processUsers(configuration);
 
         process.env.RUN_OBLIGATIONS_JOB === 'true' && await obligationsProcessor.processObligations(configuration);
     }
