@@ -50,8 +50,8 @@ async function getMappingsList(configuration) {
 //Load signed in users for processing.
 async function loadUsers(configuration) {
   let path = encodeURI(
-    `${auth.apiConfigWithSite.uri}lists/${configuration.UserListId}/items?$expand=fields&$top=999&$filter=fields/SignedIn eq null or fields/SignedIn eq 0`,
-  ),
+      `${auth.apiConfigWithSite.uri}lists/${configuration.UserListId}/items?$expand=fields&$top=999&$filter=fields/SignedIn eq null or fields/SignedIn eq 0`,
+    ),
     result = [];
 
   while (path) {
@@ -68,14 +68,18 @@ async function loadUsers(configuration) {
 }
 
 async function removeTag(configuration, teamId, name, userId, email) {
-  let response = await provider.apiGet(`${auth.apiConfig.uri}/teams/${teamId}/tags?$filter=displayName eq '${name}'`);
+  let response = await provider.apiGet(
+    `${auth.apiConfig.uri}/teams/${teamId}/tags?$filter=displayName eq '${name}'`,
+  );
   if (response?.success && response?.data?.value?.length) {
     const existingTag = response.data.value[0],
       tagMemberIdResponse = await getTag(teamId, existingTag.id, userId);
 
     if (tagMemberIdResponse?.success && tagMemberIdResponse?.data?.value?.length) {
       let tagMemberId = tagMemberIdResponse.data.value[0].id;
-      const deleteResponse = await provider.apiDelete(`${auth.apiConfig.uri}/teams/${teamId}/tags/${existingTag.id}/members/${tagMemberId}`);
+      const deleteResponse = await provider.apiDelete(
+        `${auth.apiConfig.uri}/teams/${teamId}/tags/${existingTag.id}/members/${tagMemberId}`,
+      );
 
       if (deleteResponse) {
         const message = deleteResponse.success
@@ -97,8 +101,6 @@ async function getTag(teamId, tagId, userId) {
   return response;
 }
 
-
-
 //Check user mappings and update groups and tags if needed
 async function processUser(user, configuration) {
   const userFields = user.fields,
@@ -114,12 +116,13 @@ async function processUser(user, configuration) {
 
     try {
       if (!userFields.SignedIn) {
-        const tagMappings4Remove = userMappings.filter((m) => m.Tag && ['Data-Digitalisation'].some(t => t == m.Tag));
+        const tagMappings4Remove = userMappings.filter(
+          (m) => m.Tag && ['Data-Digitalisation'].some((t) => t == m.Tag),
+        );
         for (const m of tagMappings4Remove) {
           await removeTag(configuration, m.O365GroupId, m.Tag, userId, userFields.Email);
         }
       }
-
     } catch (err) {
       console.log(err);
     }
