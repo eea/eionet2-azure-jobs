@@ -37,7 +37,7 @@ async function loadConsulations(listId) {
   let result = [];
 
   while (path) {
-    const response = await provider.apiGet(path, true);
+    let response = await provider.apiGet(path, true);
     if (response.success) {
       result = result.concat(response.data.value);
       path = response.data['@odata.nextLink'];
@@ -65,44 +65,53 @@ async function getCountries(configuration, consultation) {
   let result = [];
 
   if (consultation.ConsultationListId) {
-    const path =
+    let path =
       auth.apiConfigWithSecondarySite.uri +
       'lists/' +
       consultation.ConsultationListId +
-      '/items?$expand=fields';
+      '/items?$expand=fields&$top=999';
 
-    const response = await provider.apiGet(path, true);
-    if (response.success) {
-      if (response.data.value.length) {
-        const firstRecord = response.data.value[0];
-        if (!Object.prototype.hasOwnProperty.call(firstRecord.fields, 'Country')) {
-          await logging.info(
-            configuration,
-            consultation.Title +
-              ': Cannot find column "Country" in specified list ' +
-              consultation.ConsultationListId,
-            '',
-            {},
-            jobName,
-          );
-        } else {
-          const countryList = response.data.value
-            .map((record) => record.fields.Country)
-            .filter((c) => allowedCountries.includes(c));
-          result = [...new Set(countryList)];
-        }
+    let listResult = [];
+
+    while (path) {
+      const response = await provider.apiGet(path, true);
+      if (response.success) {
+        listResult = listResult.concat(response.data?.value || []);
+        path = response.data['@odata.nextLink'];
+      } else {
+        path = undefined;
       }
-    } else {
-      await logging.info(
-        configuration,
-        consultation.Title +
-          ': List with the specified ID does not exist ' +
-          consultation.ConsultationListId,
-        '',
-        {},
-        jobName,
-      );
     }
+
+    if (listResult.length) {
+      const firstRecord = listResult[0];
+      if (!Object.prototype.hasOwnProperty.call(firstRecord.fields, 'Country')) {
+        await logging.info(
+          configuration,
+          consultation.Title +
+            ': Cannot find column "Country" in specified list ' +
+            consultation.ConsultationListId,
+          '',
+          {},
+          jobName,
+        );
+      } else {
+        const countryList = listResult
+          .map((record) => record.fields.Country)
+          .filter((c) => allowedCountries.includes(c));
+        result = [...new Set(countryList)];
+      }
+    }
+  } else {
+    await logging.info(
+      configuration,
+      consultation.Title +
+        ': List with the specified ID does not exist ' +
+        consultation.ConsultationListId,
+      '',
+      {},
+      jobName,
+    );
   }
 
   return result;
