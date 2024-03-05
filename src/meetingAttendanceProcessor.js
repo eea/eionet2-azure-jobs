@@ -1,6 +1,7 @@
 const provider = require('./provider'),
   logging = require('./logging'),
   auth = require('./auth'),
+  userHelper = require('./helpers/userHelper'),
   jobName = 'UpdateMeetingParticipants';
 
 let configuration = undefined;
@@ -45,7 +46,7 @@ async function processMeeting(meeting) {
   const apiRoot = auth.apiConfig.uri,
     meetingFields = meeting.fields;
 
-  const userId = await getADUserId(meetingFields.MeetingmanagerLookupId),
+  const userId = await userHelper.getLookupADUserId(meetingFields.MeetingmanagerLookupId),
     meetingTitle = meetingFields.Title;
   if (!userId) {
     await logging.error(
@@ -280,30 +281,6 @@ async function getParticipant(meetingId, email, name) {
     return response.data.value[0];
   }
 
-  return undefined;
-}
-
-async function getADUserId(lookupId) {
-  if (lookupId) {
-    try {
-      let path = auth.apiConfigWithSite.uri + 'lists/User Information List/items/' + lookupId;
-
-      const response = await provider.apiGet(path);
-      if (response.success) {
-        const userInfo = response.data.fields;
-
-        const adResponse = await provider.apiGet(auth.apiConfig.uri + 'users/' + userInfo.EMail);
-        if (adResponse.success) {
-          return adResponse.data.id;
-        }
-      }
-
-      return undefined;
-    } catch (error) {
-      await logging.error(configuration, error, jobName);
-      return undefined;
-    }
-  }
   return undefined;
 }
 

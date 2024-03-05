@@ -1,6 +1,7 @@
 const logging = require('./logging'),
   provider = require('./provider'),
   auth = require('./auth'),
+  userHelper = require('./helpers/userHelper'),
   jobName = 'RemoveUserTags';
 
 let noOfUpdated, no2Process;
@@ -106,7 +107,7 @@ async function processUser(user, configuration) {
   const userFields = user.fields,
     userId = userFields.ADUserId;
 
-  const adUser = await getADUser(userId);
+  const adUser = await userHelper.getADUser(userId);
   if (adUser) {
     const userMappings = mappingsList.filter(
       (m) =>
@@ -131,17 +132,6 @@ async function processUser(user, configuration) {
       `Invalid ADUserId ${userFields.ADUserId}. User with email ${userFields.Email} has an invalid AD user Id.`,
     );
   }
-}
-
-//load Ad user based on id
-async function getADUser(userId) {
-  const adResponse = await provider.apiGet(
-    `${auth.apiConfig.uri}users/?$filter=id eq '${userId}'&$select=id,displayName,givenName,surname,country`,
-  );
-  if (adResponse.success && adResponse.data.value.length) {
-    return adResponse.data.value[0];
-  }
-  return undefined;
 }
 
 module.exports = {
