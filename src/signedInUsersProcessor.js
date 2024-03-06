@@ -1,6 +1,7 @@
 const logging = require('./logging'),
   provider = require('./provider'),
   auth = require('./auth'),
+  mappingHelper = require('./helpers/mappingHelper'),
   userHelper = require('./helpers/userHelper'),
   jobName = 'UpdateSignedInUsers';
 
@@ -11,6 +12,7 @@ let configuration;
 async function processSignedInUsers(config) {
   configuration = config;
   try {
+    await mappingHelper.initialize(configuration);
     await tagHelper.initialize(jobName, configuration);
 
     const users = await loadUsers(configuration.UserListId);
@@ -85,7 +87,7 @@ async function processUser(user) {
                 userFields,
                 jobName,
               );
-              tagHelper.applyTags(userId, userFields, true);
+              await applyTags(userFields);
               await patchSPUser(
                 userFields.id,
                 {
@@ -124,6 +126,22 @@ async function processUser(user) {
   } catch (error) {
     await logging.error(configuration, error, jobName);
   }
+}
+
+async function applyTags(userFields) {
+  const userMappings = mappingHelper
+    .getMappings()
+    .filter(
+      (m) =>
+        userFields.Membership?.includes(m.Membership) ||
+        userFields.OtherMemberships?.includes(m.Membership),
+    );
+
+  await tagHelper.applyTags(
+    userFields,
+    userMappings.filter((m) => m.Tag),
+    true,
+  );
 }
 
 //Mark user as signedIn in sharepoint list

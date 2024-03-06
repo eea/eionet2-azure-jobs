@@ -1,5 +1,5 @@
 const provider = require('../provider'),
-  auth = require('./auth');
+  auth = require('../auth');
 
 let mappingsList;
 async function initialize(configuration) {
@@ -26,7 +26,7 @@ async function getMappingsList(configuration) {
   return mappingsList;
 }
 
-export function getMappings() {
+function getMappings() {
   return mappingsList;
 }
 
