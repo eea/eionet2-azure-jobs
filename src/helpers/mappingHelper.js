@@ -12,7 +12,7 @@ async function getMappingsList(configuration) {
     const response = await provider.apiGet(
       `${auth.apiConfigWithSite.uri}/lists/${configuration.MappingListId}/items?$expand=fields`,
     );
-    mappingsList = response.data.value.map(function (mapping) {
+    mappingsList = response?.data?.value.map(function (mapping) {
       return {
         TeamURL: mapping.fields.TeamURL,
         O365GroupId: mapping.fields.O365GroupId,
@@ -27,7 +27,7 @@ async function getMappingsList(configuration) {
 }
 
 function getMappings() {
-  return mappingsList;
+  return mappingsList || [];
 }
 
 module.exports = {
