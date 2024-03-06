@@ -1,15 +1,24 @@
 const logging = require('./logging'),
   provider = require('./provider'),
   auth = require('./auth'),
+  mappingHelper = require('./helpers/mappingHelper'),
+  userHelper = require('./helpers/userHelper'),
   jobName = 'UpdateSignedInUsers';
 
+const tagHelper = require('./helpers/tagHelper');
+
 //Entry point function for processing users that have signed it in Eionet
-async function processSignedInUsers(configuration) {
+let configuration;
+async function processSignedInUsers(config) {
+  configuration = config;
   try {
+    await mappingHelper.initialize(configuration);
+    await tagHelper.initialize(jobName, configuration);
+
     const users = await loadUsers(configuration.UserListId);
     console.log('Number of user for signedIn to process: ' + users.length);
     for (const user of users) {
-      await processUser(user, configuration);
+      await processUser(user);
     }
   } catch (error) {
     await logging.error(configuration, error, jobName);
@@ -40,13 +49,14 @@ async function loadUsers(listId) {
 }
 
 //Main function the processes each record loaded and checks if user had completed the sing-in process.
-async function processUser(user, configuration) {
+async function processUser(user) {
   const apiRoot = auth.apiConfig.uri,
-    userFields = user.fields;
+    userFields = user.fields,
+    userId = userFields.ADUserId;
 
   try {
-    if (userFields.ADUserId) {
-      const adUser = await getADUser(configuration, userFields.ADUserId);
+    if (userId) {
+      const adUser = await userHelper.getADUser(userId);
 
       if (adUser) {
         const registrationDetailsPath =
@@ -77,6 +87,7 @@ async function processUser(user, configuration) {
                 userFields,
                 jobName,
               );
+              await applyTags(userFields);
               await patchSPUser(
                 userFields.id,
                 {
@@ -117,28 +128,24 @@ async function processUser(user, configuration) {
   }
 }
 
-//Load AD user information
-async function getADUser(configuration, userId) {
-  try {
-    const adResponse = await provider.apiGet(
-      auth.apiConfig.uri +
-        "/users/?$filter=id eq '" +
-        userId +
-        "'&$select=id,displayName,userType,externalUserState,externalUserStateChangeDateTime",
+async function applyTags(userFields) {
+  const userMappings = mappingHelper
+    .getMappings()
+    .filter(
+      (m) =>
+        userFields.Membership?.includes(m.Membership) ||
+        userFields.OtherMemberships?.includes(m.Membership),
     );
 
-    if (adResponse.success && adResponse.data.value.length) {
-      return adResponse.data.value[0];
-    }
-    return undefined;
-  } catch (error) {
-    await logging.error(configuration, error, jobName);
-    return undefined;
-  }
+  await tagHelper.applyTags(
+    userFields,
+    userMappings.filter((m) => m.Tag),
+    true,
+  );
 }
 
 //Mark user as signedIn in sharepoint list
-async function patchSPUser(userId, userData, configuration) {
+async function patchSPUser(userId, userData) {
   try {
     const path =
         auth.apiConfigWithSite.uri + 'lists/' + configuration.UserListId + '/items/' + userId,

@@ -1,6 +1,7 @@
 const logging = require('./logging'),
   provider = require('./provider'),
   auth = require('./auth'),
+  userHelper = require('./helpers/userHelper'),
   jobName = 'UserNameUpdates';
 
 //Entry-point function for processing user names from Eionet sharepoint user list
@@ -48,7 +49,7 @@ async function loadUsers(listId) {
 async function processUser(user, configuration) {
   const userFields = user.fields;
 
-  const adUser = await getADUser(userFields.ADUserId);
+  const adUser = await userHelper.getADUser(userFields.ADUserId);
   if (adUser) {
     const displayName = buildDisplayName(adUser, userFields);
 
@@ -56,20 +57,6 @@ async function processUser(user, configuration) {
       await patchUser(userFields.ADUserId, displayName, configuration);
     }
   }
-}
-
-//load Ad user based on id
-async function getADUser(userId) {
-  const adResponse = await provider.apiGet(
-    auth.apiConfig.uri +
-      "users/?$filter=id eq '" +
-      userId +
-      "'&$select=id,displayName,givenName,surname,country",
-  );
-  if (adResponse.success && adResponse.data.value.length) {
-    return adResponse.data.value[0];
-  }
-  return undefined;
 }
 
 //Construct correct displayName for user
