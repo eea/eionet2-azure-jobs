@@ -46,13 +46,13 @@ Processes meetings and extracts the participants from the Graph API attendance r
     Filters: (Processed = 0 AND MeetingStart <= Current time) OR (Processed = 1 AND MeetingEnd >= (Current time - 12 hours))
     Config key: RUN_MEETING_ATTENDANCE_JOB
 
-### Meeting fieds job
+### Meeting fields job
 Updates fields MeetingLink, NoOfParticipants, NoOfRegistered, Countries based on MeetingJoinId and information from participants list.
 
     Filters: MeetingStart <= (Current time - 4 weeks)
     Config key: RUN_MEETING_FIELDS_JOB
 
-### Meeting fieds job all
+### Meeting fields job all
 Updates fields MeetingLink, NoOfParticipants, NoOfRegistered, Countries based on MeetingJoinId and information from participants list.
 
     Filters: none (loads all meetings)
