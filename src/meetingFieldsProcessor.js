@@ -141,29 +141,46 @@ async function patchMeeting(meeting, meetingJoinInfo, participants) {
 
   try {
     const path =
-        auth.apiConfigWithSite.uri +
-        'lists/' +
-        configuration.MeetingListId +
-        '/items/' +
-        meeting.id,
-      response = await provider.apiPatch(path, {
-        fields: {
-          ...(meetingJoinLink && { MeetingLink: meetingJoinLink }),
-          ...(updateParticipated && {
-            NoOfParticipants: participants.filter((p) => p.fields.Participated).length,
-          }),
-          ...(updateRegistered && {
-            NoOfRegistered: participants.filter((p) => p.fields.Registered).length,
-          }),
-          ...(countries && {
-            'Countries@odata.type': 'Collection(Edm.String)',
-            Countries: countries,
-          }),
-        },
-      });
+      auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meeting.id;
+
+    let response = await provider.apiGet(path);
     if (response.success) {
-      console.log('Meeting fields updated succesfully : ' + meeting.Title);
-      return response.data;
+      const meetingFields = response.data.fields;
+
+      const participantsCount = participants.filter((p) => p.fields.Participated).length,
+        registeredCount = participants.filter((p) => p.fields.Registered).length;
+
+      const existingCountries = meetingFields.Countries?.sort().join(','),
+        newCountries = countries?.sort().join(',');
+
+      if (
+        meetingFields.MeetingLink != meetingJoinLink ||
+        (updateParticipated && meetingFields.NoOfParticipants != participantsCount) ||
+        (updateRegistered && meetingFields.NoOfRegistered != registeredCount) ||
+        existingCountries != newCountries
+      ) {
+        response = await provider.apiPatch(path, {
+          fields: {
+            ...(meetingJoinLink && { MeetingLink: meetingJoinLink }),
+            ...(updateParticipated && {
+              NoOfParticipants: participantsCount,
+            }),
+            ...(updateRegistered && {
+              NoOfRegistered: registeredCount,
+            }),
+            ...(countries && {
+              'Countries@odata.type': 'Collection(Edm.String)',
+              Countries: countries,
+            }),
+          },
+        });
+        if (response.success) {
+          console.log('Meeting fields updated succesfully : ' + meeting.Title);
+          return response.data;
+        }
+      }
+    } else {
+      console.log(`No changes to meeting ${meeting.Title}. Skip patch`);
     }
 
     return undefined;
