@@ -41,18 +41,24 @@ The second part of the file will contain the keys of the jobs that are configure
 ## Jobs
 
 ### Meeting attendance job
-Processes meetings and extracts the participants from the Graph API attendance records. Saves the participants in the Event participants list.
+Processes meetings from the "Events list" and extracts the participants from the Graph API attendance records. Saves the participants in the Event participants list.
+It either goes through those events which have **not** been processed before, as well as those which have already been processed and where the meeting end date is less than 12 hours ago. 
+THis is to capture a) Older meetings, which have not been captured by the script, e.g. because it did not run regularly b) To capture participants in e.g. multi-day meetings where the initial attendance whcih was covered is not the final one 
 
     Filters: (Processed = 0 AND MeetingStart <= Current time) OR (Processed = 1 AND MeetingEnd >= (Current time - 12 hours))
     Config key: RUN_MEETING_ATTENDANCE_JOB
 
 ### Meeting fields job
+This job updates several fields in the "Events list". It runs on all future meetings as well as those in the past 4 weeks. 
+This is to a) generate the "MeetingLink" from the ID for future meetings, and update the figures of participants, registrants and countries based on the "Participants list"
 Updates fields MeetingLink, NoOfParticipants, NoOfRegistered, Countries based on MeetingJoinId and information from participants list.
+This job can run very freqently
 
     Filters: MeetingStart <= (Current time - 4 weeks)
     Config key: RUN_MEETING_FIELDS_JOB
 
-### Meeting fields job all
+### Meeting fields job all - Helper job  - on demand
+Similar to the meeting fields job, but takes into account **all** meetings from the past. This is a on-demand helper job and only triggered where needed, e.g. when older participants lists are updated manually.
 Updates fields MeetingLink, NoOfParticipants, NoOfRegistered, Countries based on MeetingJoinId and information from participants list.
 
     Filters: none (loads all meetings)
