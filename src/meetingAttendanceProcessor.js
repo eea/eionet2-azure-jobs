@@ -28,13 +28,13 @@ async function loadMeetings(meetingListId) {
     last12hours = date.format(
       new Date(nowDate.getTime() - 12 * 60 * 60 * 1000),
       'YYYY-MM-DDTHH:mm:ss',
-    );
-  filterString =
-    "&$filter=(fields/Processed eq 0 and fields/Meetingstart le '" +
-    date.format(nowDate, 'YYYY-MM-DD') +
-    "') or (fields/Processed eq 1 and fields/Meetingend ge '" +
-    last12hours +
-    "') ";
+    ),
+    filterString =
+      "&$filter=(fields/Processed eq 0 and fields/Meetingstart le '" +
+      date.format(nowDate, 'YYYY-MM-DD') +
+      "') or (fields/Processed eq 1 and fields/Meetingend ge '" +
+      last12hours +
+      "') ";
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri + 'lists/' + meetingListId + '/items?$expand=fields' + filterString,
   );
