@@ -25,7 +25,10 @@ async function processMeetings(config) {
 async function loadMeetings(meetingListId) {
   //get meetings from last 24 hours or meetings not processed so far
   const nowDate = new Date(),
-    last12hours = date.format(new Date(nowDate.getTime() - 12 * 60 * 60 * 1000), 'YYYY-MM-DDTHH:mm:ss');
+    last12hours = date.format(
+      new Date(nowDate.getTime() - 12 * 60 * 60 * 1000),
+      'YYYY-MM-DDTHH:mm:ss',
+    );
   filterString =
     "&$filter=(fields/Processed eq 0 and fields/Meetingstart le '" +
     date.format(nowDate, 'YYYY-MM-DD') +
@@ -64,13 +67,13 @@ async function processMeeting(meeting) {
     parsedJoinId && (joinMeetingId = parsedJoinId.join(''));
     if (joinMeetingId) {
       const meetingResponse = await provider.apiGet(
-        apiRoot +
-        'users/' +
-        userId +
-        "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
-        joinMeetingId +
-        "'",
-      ),
+          apiRoot +
+            'users/' +
+            userId +
+            "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
+            joinMeetingId +
+            "'",
+        ),
         processedReports = meetingFields.Processedreports
           ? meetingFields.Processedreports.split('#')
           : [];
@@ -96,35 +99,35 @@ async function processMeeting(meeting) {
               for (const report of filteredReports) {
                 const reportDetailsResponse = await provider.apiGet(
                   apiRoot +
-                  'users/' +
-                  userId +
-                  '/onlineMeetings/' +
-                  meetingId +
-                  '/attendanceReports/' +
-                  report.id +
-                  '?$expand=attendanceRecords',
+                    'users/' +
+                    userId +
+                    '/onlineMeetings/' +
+                    meetingId +
+                    '/attendanceReports/' +
+                    report.id +
+                    '?$expand=attendanceRecords',
                 );
 
                 if (reportDetailsResponse.success) {
                   //for unknown reasons sometime the api returns empty records which should be processed.
                   const validAttendanceRecords =
-                    reportDetailsResponse.data.attendanceRecords?.filter(
-                      (ar) => ar.emailAddress || ar.identity?.displayName,
-                    ),
+                      reportDetailsResponse.data.attendanceRecords?.filter(
+                        (ar) => ar.emailAddress || ar.identity?.displayName,
+                      ),
                     hasAttendanceRecords = validAttendanceRecords.length > 0;
 
                   !hasAttendanceRecords &&
                     console.log(
                       'No valid attendance records found for report id: ' +
-                      report.id +
-                      JSON.stringify(reportDetailsResponse),
+                        report.id +
+                        JSON.stringify(reportDetailsResponse),
                     );
 
                   hasAttendanceRecords &&
                     console.log(
                       'Attendance records loaded: ' +
-                      report.id +
-                      JSON.stringify(reportDetailsResponse),
+                        report.id +
+                        JSON.stringify(reportDetailsResponse),
                     );
 
                   for (const attendanceRecord of validAttendanceRecords) {
@@ -171,11 +174,11 @@ async function processMeeting(meeting) {
           configuration,
 
           'Unable to load meeting with id and manager specified:  ' +
-          meetingTitle +
-          ' - ' +
-          userId +
-          ' ' +
-          meetingResponse.error,
+            meetingTitle +
+            ' - ' +
+            userId +
+            ' ' +
+            meetingResponse.error,
           jobName,
         );
         return meetingResponse.error;
@@ -215,10 +218,10 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
       };
 
       const path =
-        auth.apiConfigWithSite.uri +
-        'lists/' +
-        configuration.MeetingParticipantsListId +
-        '/items',
+          auth.apiConfigWithSite.uri +
+          'lists/' +
+          configuration.MeetingParticipantsListId +
+          '/items',
         response = await provider.apiPost(path, record2Save);
 
       if (response.success) {
