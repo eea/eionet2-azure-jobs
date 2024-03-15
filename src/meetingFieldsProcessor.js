@@ -33,10 +33,10 @@ async function loadMeetings(meetingListId) {
       : "&$filter=fields/Meetingstart ge '" + last4Weeks.toDateString() + "'";
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri +
-    'lists/' +
-    meetingListId +
-    '/items?$expand=fields&$top=999' +
-    filterString,
+      'lists/' +
+      meetingListId +
+      '/items?$expand=fields&$top=999' +
+      filterString,
   );
   if (response.success) {
     return response.data.value;
@@ -68,11 +68,11 @@ async function getMeetingJoinInfo(meeting) {
       if (userId) {
         const response = await provider.apiGet(
           auth.apiConfig.uri +
-          '/users/' +
-          userId +
-          "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
-          joinMeetingId +
-          "'",
+            '/users/' +
+            userId +
+            "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
+            joinMeetingId +
+            "'",
         );
         if (response.success && response.data.value && response.data.value.length > 0) {
           return response.data.value[0];
@@ -90,12 +90,12 @@ async function getMeetingJoinInfo(meeting) {
 async function getParticipants(meetingId) {
   try {
     let path = encodeURI(
-      auth.apiConfigWithSite.uri +
-      'lists/' +
-      configuration.MeetingParticipantsListId +
-      '/items?$expand=fields&$top=999&$filter=fields/MeetingtitleLookupId eq ' +
-      meetingId,
-    ),
+        auth.apiConfigWithSite.uri +
+          'lists/' +
+          configuration.MeetingParticipantsListId +
+          '/items?$expand=fields&$top=999&$filter=fields/MeetingtitleLookupId eq ' +
+          meetingId,
+      ),
       result = [];
 
     while (path) {
@@ -150,7 +150,9 @@ async function patchMeeting(meeting, meetingJoinInfo, participants) {
       const participantsCount = participants.filter((p) => p.fields.Participated).length,
         registeredCount = participants.filter((p) => p.fields.Registered).length;
 
-      const existingCountries = meetingFields.Countries?.length ? meetingFields.Countries.sort().join(',') : undefined,
+      const existingCountries = meetingFields.Countries?.length
+          ? meetingFields.Countries.sort().join(',')
+          : undefined,
         newCountries = countries?.length ? countries.sort().join(',') : undefined;
 
       if (
