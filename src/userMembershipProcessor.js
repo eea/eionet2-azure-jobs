@@ -124,7 +124,7 @@ async function processUser(user, configuration) {
 
       let tagMappings = userMappings.filter((m) => m.Tag);
       //if not update all tags will update only tags from inconsistencies
-      const updateAllTags = configuration.UpdateAllTags == 'true';
+      const updateAllTags = configuration.UpdateAllTags?.toLowerCase() == 'true';
       const inconsistentTagMappings = tagMappings.filter((t) =>
         inconsistentGroupIds.includes(t.O365GroupId),
       );

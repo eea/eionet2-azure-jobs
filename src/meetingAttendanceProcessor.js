@@ -2,6 +2,7 @@ const provider = require('./provider'),
   logging = require('./logging'),
   auth = require('./auth'),
   userHelper = require('./helpers/userHelper'),
+  date = require('date-and-time'),
   jobName = 'UpdateMeetingParticipants';
 
 let configuration = undefined;
@@ -23,14 +24,17 @@ async function processMeetings(config) {
 
 async function loadMeetings(meetingListId) {
   //get meetings from last 24 hours or meetings not processed so far
-  const last24Hours = new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
-    next24hours = new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
+  const nowDate = new Date(),
+    last12hours = date.format(
+      new Date(nowDate.getTime() - 12 * 60 * 60 * 1000),
+      'YYYY-MM-DDTHH:mm:ss',
+    ),
     filterString =
-      "&$filter=(fields/Processed eq 0 or fields/Meetingstart ge '" +
-      last24Hours.toDateString() +
-      "') and fields/Meetingstart le '" +
-      next24hours.toDateString() +
-      "'";
+      "&$filter=(fields/Processed eq 0 and fields/Meetingstart le '" +
+      date.format(nowDate, 'YYYY-MM-DD') +
+      "') or (fields/Processed eq 1 and fields/Meetingend ge '" +
+      last12hours +
+      "') ";
   const response = await provider.apiGet(
     auth.apiConfigWithSite.uri + 'lists/' + meetingListId + '/items?$expand=fields' + filterString,
   );
@@ -286,27 +290,38 @@ async function getParticipant(meetingId, email, name) {
 
 //Save processed attedance reports to meeting sharepoint record.
 async function patchMeeting(meetingId, meetingTitle, processedReports) {
+  const processedReportsText = processedReports.join('#');
   try {
     const path =
-        auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId,
-      response = await provider.apiPatch(path, {
-        fields: {
-          Processedreports: processedReports.join('#'),
-          Processed: true,
-        },
-      });
+      auth.apiConfigWithSite.uri + 'lists/' + configuration.MeetingListId + '/items/' + meetingId;
+
+    let response = await provider.apiGet(path);
     if (response.success) {
-      await logging.info(
-        configuration,
+      const meetingFields = response.data.fields;
 
-        'Meeting updated succesfully : ' + meetingTitle,
-        '',
-        processedReports.join('#'),
-        jobName,
-      );
-      return response.data;
+      if (!meetingFields.Processed || meetingFields.Processedreports != processedReportsText) {
+        const response = await provider.apiPatch(path, {
+          fields: {
+            Processedreports: processedReportsText,
+            Processed: true,
+          },
+        });
+
+        if (response.success) {
+          await logging.info(
+            configuration,
+
+            'Meeting updated succesfully : ' + meetingTitle,
+            '',
+            processedReports.join('#'),
+            jobName,
+          );
+          return response.data;
+        }
+      } else {
+        console.log(`No changes to meeting ${meetingTitle}. Skip patch`);
+      }
     }
-
     return undefined;
   } catch (error) {
     await logging.error(configuration, error, jobName);
