@@ -1,6 +1,7 @@
 const logging = require('./logging'),
   provider = require('./provider'),
   auth = require('./auth'),
+  userGroupHelper = require('./helpers/userGroupHelper'),
   mappingHelper = require('./helpers/mappingHelper'),
   userHelper = require('./helpers/userHelper'),
   tagHelper = require('./helpers/tagHelper'),
@@ -52,35 +53,6 @@ async function loadUsers(configuration) {
   return result;
 }
 
-function getDistinctGroupsIds(mappings) {
-  let groupIds = mappings.map((m) => m.O365GroupId);
-
-  groupIds = groupIds.concat(mappings.map((m) => m.AdditionalGroupId));
-  groupIds = groupIds.concat(mappings.map((m) => m.MailingGroupId));
-
-  return [...new Set(groupIds.filter((g) => !!g))];
-}
-
-async function getExistingGroups(userId, groupIds) {
-  let result = [];
-
-  let localGroupsIds = [...groupIds];
-
-  //directoryObjects endpoint allows max 20 groups ids per request.
-  //see: https://learn.microsoft.com/en-us/graph/api/directoryobject-checkmembergroups?view=graph-rest-1.0&tabs=http#request-body
-  while (localGroupsIds.length > 0) {
-    const response = await provider.apiPost(
-      `${auth.apiConfig.uri}/directoryObjects/${userId}/checkMemberGroups`,
-      {
-        groupIds: localGroupsIds.splice(0, 20),
-      },
-    );
-
-    response?.success && (result = result.concat(response?.data?.value));
-  }
-  return result;
-}
-
 async function postUserGroup(groupId, userId) {
   if (groupId) {
     const apiPath = `${auth.apiConfig.uri}/groups/${groupId}/members/$ref`;
@@ -105,7 +77,7 @@ async function processUser(user, configuration) {
           userFields.OtherMemberships?.includes(m.Membership),
       );
 
-    const userGroupIds = getDistinctGroupsIds(userMappings);
+    const userGroupIds = userGroupHelper.getDistinctGroupsIds(userMappings);
     //if NFP add specific groups if not already present.
     if (userFields.NFP) {
       !userGroupIds.includes(configuration.NFPGroupId) &&
@@ -114,7 +86,7 @@ async function processUser(user, configuration) {
         userGroupIds.push(configuration.MainEionetGroupId);
     }
 
-    const existingGroups = await getExistingGroups(userId, userGroupIds);
+    const existingGroups = await userGroupHelper.getExistingGroups(userId, userGroupIds);
     try {
       const inconsistentGroupIds = userGroupIds.filter((id) => !existingGroups?.includes(id));
 
@@ -142,6 +114,8 @@ async function processUser(user, configuration) {
           '',
           {},
           jobName,
+          '',
+          userFields.Email,
         );
 
         noOfUpdated++;

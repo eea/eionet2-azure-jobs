@@ -1,7 +1,7 @@
 const axios = require('axios'),
   auth = require('./auth');
 
-async function info(configuration, message, apiPath, data, jobName) {
+async function info(configuration, message, apiPath, data, jobName, action, affectedUser) {
   console.log(message);
   const token = await auth.getAccessToken();
   const options = {
@@ -18,6 +18,8 @@ async function info(configuration, message, apiPath, data, jobName) {
       Title: jobTitle + ' - ' + message,
       Logtype: 'Info',
       Timestamp: new Date(),
+      Action: action,
+      AffectedUser: affectedUser,
     },
   };
   const path = auth.apiConfigWithSite.uri + 'lists/' + configuration.LoggingListId + '/items';
