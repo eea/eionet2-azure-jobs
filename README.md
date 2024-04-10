@@ -101,6 +101,13 @@ Removes specified tags from user that have not yet finalized the signing in proc
     Filters: SignedIn = 0 and SignedIn = null
     Config key : RUN_REMOVE_USER_TAGS
 
+### Remove users job
+Removes users that have not finalized the sign in process or users with no activity after a specified date. See also Configuration file.
+
+    Filters: ((SignedIn = 0 or SignedIn = null) and CreatedDateTime < CurrentTime - configuration.RemoveNonSignedInUserNoOfDays)
+        OR (LastSignDate < configuration.UserRemovalLastSignInDateTime)
+    Config key : RUN_REMOVE_USERS
+
 ## Release
 
 See [RELEASE.md](https://github.com/eea/eionet2-azure-jobs/blob/master/RELEASE.md).
