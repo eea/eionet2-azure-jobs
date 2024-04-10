@@ -26,8 +26,8 @@ async function loadUsers(listId) {
       auth.apiConfigWithSite.uri +
         'lists/' +
         listId +
-        "/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1 && SignedDate le datetime'" +
-        filterDate +
+        "/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1 and fields/SignedInDate ge '" +
+        filterDate.toDateString() +
         "'",
     ),
     result = [];
@@ -54,7 +54,7 @@ async function processUser(user, configuration) {
     const displayName = buildDisplayName(adUser, userFields);
 
     if (adUser.displayName != displayName) {
-      await patchUser(userFields.ADUserId, displayName, configuration);
+      await patchUser(userFields, displayName, configuration);
     }
   }
 }
@@ -79,9 +79,9 @@ function buildDisplayName(adUser, spUser) {
 }
 
 //Update AD user display name
-async function patchUser(userId, displayName, configuration) {
+async function patchUser(userFields, displayName, configuration) {
   try {
-    const apiPath = auth.apiConfig.uri + 'users/' + userId,
+    const apiPath = auth.apiConfig.uri + 'users/' + userFields.ADUserId,
       response = await provider.apiPatch(apiPath, {
         displayName: displayName,
       });
@@ -93,6 +93,8 @@ async function patchUser(userId, displayName, configuration) {
         '',
         {},
         jobName,
+        '',
+        userFields.Email,
       );
       return response.data;
     } else {

@@ -86,6 +86,8 @@ async function processUser(user) {
                 '',
                 userFields,
                 jobName,
+                '',
+                userFields.Email,
               );
               await applyTags(userFields);
               await patchSPUser(
