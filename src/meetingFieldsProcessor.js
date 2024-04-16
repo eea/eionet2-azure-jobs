@@ -61,7 +61,7 @@ async function processMeeting(meeting) {
 
 //load meeting join information based on the provided JoinMeetingId
 async function getMeetingJoinInfo(meeting) {
-  const parsedJoinId = meeting``.JoinMeetingId?.match(/\d+/g);
+  const parsedJoinId = meeting.JoinMeetingId?.match(/\d+/g);
   let joinMeetingId;
 
   parsedJoinId && (joinMeetingId = parsedJoinId.join(''));
