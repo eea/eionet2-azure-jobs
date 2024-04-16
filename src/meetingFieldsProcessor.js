@@ -61,7 +61,10 @@ async function processMeeting(meeting) {
 
 //load meeting join information based on the provided JoinMeetingId
 async function getMeetingJoinInfo(meeting) {
-  const joinMeetingId = meeting.JoinMeetingId && meeting.JoinMeetingId.split(' ').join('');
+  const parsedJoinId = meeting``.JoinMeetingId?.match(/\d+/g);
+  let joinMeetingId;
+
+  parsedJoinId && (joinMeetingId = parsedJoinId.join(''));
   try {
     if (joinMeetingId) {
       const userId = await userHelper.getLookupADUserId(meeting.MeetingmanagerLookupId);
