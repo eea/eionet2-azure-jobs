@@ -3,6 +3,7 @@ const provider = require('./provider'),
   auth = require('./auth'),
   userHelper = require('./helpers/userHelper'),
   date = require('date-and-time'),
+  utils = require('./helpers/utils'),
   jobName = 'UpdateMeetingParticipants';
 
 let configuration = undefined;
@@ -31,7 +32,7 @@ async function loadMeetings(meetingListId) {
     ),
     filterString =
       "&$filter=(fields/Processed eq 0 and fields/Meetingstart le '" +
-      date.format(nowDate, 'YYYY-MM-DD') +
+      date.format(nowDate, 'YYYY-MM-DDTHH:mm:ss') +
       "') or (fields/Processed eq 1 and fields/Meetingend ge '" +
       last12hours +
       "') ";
@@ -61,10 +62,7 @@ async function processMeeting(meeting) {
     return;
   }
   try {
-    const parsedJoinId = meetingFields.JoinMeetingId?.match(/\d+/g);
-    let joinMeetingId;
-
-    parsedJoinId && (joinMeetingId = parsedJoinId.join(''));
+    const joinMeetingId = utils.parseJoinMeetingId(meetingFields.JoinMeetingId);
     if (joinMeetingId) {
       const meetingResponse = await provider.apiGet(
           apiRoot +
