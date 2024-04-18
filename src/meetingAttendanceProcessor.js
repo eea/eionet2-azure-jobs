@@ -199,7 +199,8 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
 
   try {
     if (lowerEmail) {
-      userData = await getUserByMail(lowerEmail);
+      userData = await userHelper.getUserByMail(lowerEmail);
+      userData && console.log('Loaded participant user data' + JSON.stringify(userData));
     }
 
     const existingParticipant = await getParticipant(meetingFields.id, lowerEmail, lowerName);
@@ -249,18 +250,6 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
     await logging.error(configuration, error, jobName);
     return false;
   }
-}
-
-//Get AD user by email address
-async function getUserByMail(email) {
-  const adResponse = await provider.apiGet(
-    auth.apiConfig.uri + "/users/?$filter=mail eq '" + email?.replace("'", "''") + "'",
-  );
-  if (adResponse.success && adResponse.data.value.length) {
-    console.log('Loaded participant user data' + JSON.stringify(adResponse));
-    return adResponse.data.value[0];
-  }
-  return undefined;
 }
 
 //Get participant record from participants sharepoint list
