@@ -26,13 +26,12 @@ async function processUserRemoval(config) {
       const userFields = user.fields,
         activity = signInActivities.find((sa) => sa.id == userFields.ADUserId);
       if (
-        !userFields.SignedIn ||
-        (userFields.SignedIn == null &&
-          !activity?.signInActivity &&
-          user.createdDateTime < filterDate) ||
-        (activity?.signInActivity &&
-          activity.signInActivity.lastSignInDateTime <
-            new Date(configuration.UserRemovalLastSignInDateTime))
+        shouldRemoveUser(
+          user,
+          activity,
+          filterDate,
+          new Date(configuration.UserRemovalLastSignInDateTime),
+        )
       ) {
         users2Delete.push(user);
       }
@@ -73,6 +72,18 @@ async function processUserRemoval(config) {
     await logging.error(configuration, error, jobName);
     return error;
   }
+}
+
+function shouldRemoveUser(user, activity, filterDate, lastSignInDate) {
+  const userFields = user.fields,
+    isSignedIn = userFields.SignedIn != null && !!userFields.SignedIn;
+
+  return (
+    (!isSignedIn && !activity?.signInActivity && new Date(user.createdDateTime) < filterDate) ||
+    (isSignedIn &&
+      (!activity?.signInActivity ||
+        new Date(activity.signInActivity.lastSignInDateTime) < lastSignInDate))
+  );
 }
 
 async function loadUsers(listId) {
@@ -174,5 +185,6 @@ async function deleteUser(user) {
 }
 
 module.exports = {
+  shouldRemoveUser: shouldRemoveUser,
   processUserRemoval: processUserRemoval,
 };
