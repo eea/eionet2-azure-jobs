@@ -2,6 +2,7 @@ const provider = require('./provider'),
   logging = require('./logging'),
   auth = require('./auth'),
   userHelper = require('./helpers/userHelper'),
+  utils = require('./helpers/utils'),
   jobName = 'UpdateMeetingFields';
 
 let configuration = undefined,
@@ -61,7 +62,7 @@ async function processMeeting(meeting) {
 
 //load meeting join information based on the provided JoinMeetingId
 async function getMeetingJoinInfo(meeting) {
-  const joinMeetingId = meeting.JoinMeetingId && meeting.JoinMeetingId.split(' ').join('');
+  const joinMeetingId = utils.parseJoinMeetingId(meeting.JoinMeetingId);
   try {
     if (joinMeetingId) {
       const userId = await userHelper.getLookupADUserId(meeting.MeetingmanagerLookupId);

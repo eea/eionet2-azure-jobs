@@ -3,6 +3,7 @@ const provider = require('./provider'),
   auth = require('./auth'),
   userHelper = require('./helpers/userHelper'),
   date = require('date-and-time'),
+  utils = require('./helpers/utils'),
   jobName = 'UpdateMeetingParticipants';
 
 let configuration = undefined;
@@ -31,7 +32,7 @@ async function loadMeetings(meetingListId) {
     ),
     filterString =
       "&$filter=(fields/Processed eq 0 and fields/Meetingstart le '" +
-      date.format(nowDate, 'YYYY-MM-DD') +
+      date.format(nowDate, 'YYYY-MM-DDTHH:mm:ss') +
       "') or (fields/Processed eq 1 and fields/Meetingend ge '" +
       last12hours +
       "') ";
@@ -52,6 +53,8 @@ async function processMeeting(meeting) {
 
   const userId = await userHelper.getLookupADUserId(meetingFields.MeetingmanagerLookupId),
     meetingTitle = meetingFields.Title;
+
+  const adUser = await userHelper.getADUser(userId);
   if (!userId) {
     await logging.error(
       configuration,
@@ -61,10 +64,7 @@ async function processMeeting(meeting) {
     return;
   }
   try {
-    const parsedJoinId = meetingFields.JoinMeetingId?.match(/\d+/g);
-    let joinMeetingId;
-
-    parsedJoinId && (joinMeetingId = parsedJoinId.join(''));
+    const joinMeetingId = utils.parseJoinMeetingId(meetingFields.JoinMeetingId);
     if (joinMeetingId) {
       const meetingResponse = await provider.apiGet(
           apiRoot +
@@ -166,8 +166,13 @@ async function processMeeting(meeting) {
             );
           }
         } else {
-          await logging.error(configuration, attendanceReportsResponse.error, jobName);
-          return attendanceReportsResponse.error;
+          await logging.error(
+            configuration,
+            attendanceReportsResponse.error,
+            jobName,
+            `Meeting ${meetingFields.Title} and organizer ${adUser?.mail} has wrong organizer specified.`,
+          );
+          return false;
         }
       } else {
         await logging.error(
@@ -201,7 +206,8 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
 
   try {
     if (lowerEmail) {
-      userData = await getUserByMail(lowerEmail);
+      userData = await userHelper.getUserByMail(lowerEmail);
+      userData && console.log('Loaded participant user data' + JSON.stringify(userData));
     }
 
     const existingParticipant = await getParticipant(meetingFields.id, lowerEmail, lowerName);
@@ -251,18 +257,6 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
     await logging.error(configuration, error, jobName);
     return false;
   }
-}
-
-//Get AD user by email address
-async function getUserByMail(email) {
-  const adResponse = await provider.apiGet(
-    auth.apiConfig.uri + "/users/?$filter=mail eq '" + email?.replace("'", "''") + "'",
-  );
-  if (adResponse.success && adResponse.data.value.length) {
-    console.log('Loaded participant user data' + JSON.stringify(adResponse));
-    return adResponse.data.value[0];
-  }
-  return undefined;
 }
 
 //Get participant record from participants sharepoint list

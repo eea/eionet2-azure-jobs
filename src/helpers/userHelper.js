@@ -11,7 +11,7 @@ function initialize(job, config) {
 async function getADUser(userId) {
   try {
     const adResponse = await provider.apiGet(
-      `${auth.apiConfig.uri}users/?$filter=id eq '${userId}'&$select=id,displayName,givenName,surname,country,userType,externalUserState,externalUserStateChangeDateTime`,
+      `${auth.apiConfig.uri}users/?$filter=id eq '${userId}'&$select=id,displayName,mail,givenName,surname,country,userType,externalUserState,externalUserStateChangeDateTime`,
     );
 
     if (adResponse.success && adResponse.data.value.length) {
@@ -33,9 +33,9 @@ async function getLookupADUserId(lookupId) {
       if (response.success) {
         const userInfo = response.data.fields;
 
-        const adResponse = await provider.apiGet(auth.apiConfig.uri + 'users/' + userInfo.EMail);
-        if (adResponse.success) {
-          return adResponse.data.id;
+        const userData = await getUserByMail(userInfo.EMail);
+        if (userData) {
+          return userData.id;
         }
       }
 
@@ -48,8 +48,20 @@ async function getLookupADUserId(lookupId) {
   return undefined;
 }
 
+//Get AD user by email address
+async function getUserByMail(email) {
+  const adResponse = await provider.apiGet(
+    auth.apiConfig.uri + "/users/?$filter=mail eq '" + email?.replace(/'/g, "''") + "'",
+  );
+  if (adResponse.success && adResponse.data.value.length) {
+    return adResponse.data.value[0];
+  }
+  return undefined;
+}
+
 module.exports = {
   initialize: initialize,
   getADUser: getADUser,
   getLookupADUserId: getLookupADUserId,
+  getUserByMail: getUserByMail,
 };
