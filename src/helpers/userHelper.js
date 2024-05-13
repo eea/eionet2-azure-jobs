@@ -11,7 +11,7 @@ function initialize(job, config) {
 async function getADUser(userId) {
   try {
     const adResponse = await provider.apiGet(
-      `${auth.apiConfig.uri}users/?$filter=id eq '${userId}'&$select=id,displayName,givenName,surname,country,userType,externalUserState,externalUserStateChangeDateTime`,
+      `${auth.apiConfig.uri}users/?$filter=id eq '${userId}'&$select=id,displayName,mail,givenName,surname,country,userType,externalUserState,externalUserStateChangeDateTime`,
     );
 
     if (adResponse.success && adResponse.data.value.length) {

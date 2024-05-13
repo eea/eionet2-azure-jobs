@@ -39,7 +39,7 @@ async function info(configuration, message, apiPath, data, jobName, action, affe
   }
 }
 
-async function error(configuration, error, jobName) {
+async function error(configuration, error, jobName, message = undefined) {
   console.log(error);
   const token = await auth.getAccessToken();
   const options = {
@@ -52,7 +52,7 @@ async function error(configuration, error, jobName) {
     fields: {
       ApplicationName: jobName || 'Eionet2-Azure-Jobs',
       ApiData: JSON.stringify(error),
-      Title: error.toString(),
+      Title: message ?? error.toString(),
       Logtype: 'Error',
       Timestamp: new Date(),
     },

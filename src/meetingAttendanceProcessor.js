@@ -53,6 +53,8 @@ async function processMeeting(meeting) {
 
   const userId = await userHelper.getLookupADUserId(meetingFields.MeetingmanagerLookupId),
     meetingTitle = meetingFields.Title;
+
+  const adUser = await userHelper.getADUser(userId);
   if (!userId) {
     await logging.error(
       configuration,
@@ -164,8 +166,13 @@ async function processMeeting(meeting) {
             );
           }
         } else {
-          await logging.error(configuration, attendanceReportsResponse.error, jobName);
-          return attendanceReportsResponse.error;
+          await logging.error(
+            configuration,
+            attendanceReportsResponse.error,
+            jobName,
+            `Meeting ${meetingFields.Title} and organizer ${adUser?.mail} has wrong organizer specified.`,
+          );
+          return false;
         }
       } else {
         await logging.error(
