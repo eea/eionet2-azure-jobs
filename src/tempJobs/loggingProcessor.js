@@ -7,11 +7,20 @@ async function processLogs(configuration) {
   try {
     let logs = [];
     //split query because of graph processing limitation
-    let tempLogs = await loadLogs(configuration, `fields/Action eq 'Remove user' and fields/AffectedUser eq null`);
+    let tempLogs = await loadLogs(
+      configuration,
+      `fields/Action eq 'Remove user' and fields/AffectedUser eq null`,
+    );
     logs = logs.concat(tempLogs);
-    tempLogs = await loadLogs(configuration, `fields/Action eq 'Add user' and fields/AffectedUser eq null`);
+    tempLogs = await loadLogs(
+      configuration,
+      `fields/Action eq 'Add user' and fields/AffectedUser eq null`,
+    );
     logs = logs.concat(tempLogs);
-    tempLogs = await loadLogs(configuration, `fields/Action eq 'Edit user' and fields/AffectedUser eq null`);
+    tempLogs = await loadLogs(
+      configuration,
+      `fields/Action eq 'Edit user' and fields/AffectedUser eq null`,
+    );
     logs = logs.concat(tempLogs);
 
     console.log(`Number of log records loaded: ${logs.length}`);
@@ -26,8 +35,8 @@ async function processLogs(configuration) {
 
 async function loadLogs(configuration, filter) {
   let path = encodeURI(
-    `${auth.apiConfigWithSite.uri}lists/${configuration.LoggingListId}/items?$expand=fields&$top=999&$filter=${filter}`,
-  ),
+      `${auth.apiConfigWithSite.uri}lists/${configuration.LoggingListId}/items?$expand=fields&$top=999&$filter=${filter}`,
+    ),
     result = [];
 
   while (path) {
@@ -39,7 +48,6 @@ async function loadLogs(configuration, filter) {
       path = undefined;
     }
   }
-
 
   return result;
 }
