@@ -25,7 +25,7 @@ async function processLogs(configuration) {
 
     console.log(`Number of log records loaded: ${logs.length}`);
     for (const logRecord of logs) {
-      processLog(logRecord, configuration);
+      await processLog(logRecord, configuration);
     }
   } catch (error) {
     await logging.error(configuration, error, jobName);
@@ -35,8 +35,8 @@ async function processLogs(configuration) {
 
 async function loadLogs(configuration, filter) {
   let path = encodeURI(
-      `${auth.apiConfigWithSite.uri}lists/${configuration.LoggingListId}/items?$expand=fields&$top=999&$filter=${filter}`,
-    ),
+    `${auth.apiConfigWithSite.uri}lists/${configuration.LoggingListId}/items?$expand=fields&$top=999&$filter=${filter}`,
+  ),
     result = [];
 
   while (path) {
