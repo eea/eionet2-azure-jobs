@@ -67,13 +67,13 @@ async function processMeeting(meeting) {
     const joinMeetingId = utils.parseJoinMeetingId(meetingFields.JoinMeetingId);
     if (joinMeetingId) {
       const meetingResponse = await provider.apiGet(
-          apiRoot +
-            'users/' +
-            userId +
-            "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
-            joinMeetingId +
-            "'",
-        ),
+        apiRoot +
+        'users/' +
+        userId +
+        "/onlineMeetings?$filter=joinMeetingIdSettings/JoinMeetingId eq '" +
+        joinMeetingId +
+        "'",
+      ),
         processedReports = meetingFields.Processedreports
           ? meetingFields.Processedreports.split('#')
           : [];
@@ -99,35 +99,35 @@ async function processMeeting(meeting) {
               for (const report of filteredReports) {
                 const reportDetailsResponse = await provider.apiGet(
                   apiRoot +
-                    'users/' +
-                    userId +
-                    '/onlineMeetings/' +
-                    meetingId +
-                    '/attendanceReports/' +
-                    report.id +
-                    '?$expand=attendanceRecords',
+                  'users/' +
+                  userId +
+                  '/onlineMeetings/' +
+                  meetingId +
+                  '/attendanceReports/' +
+                  report.id +
+                  '?$expand=attendanceRecords',
                 );
 
                 if (reportDetailsResponse.success) {
                   //for unknown reasons sometime the api returns empty records which should be processed.
                   const validAttendanceRecords =
-                      reportDetailsResponse.data.attendanceRecords?.filter(
-                        (ar) => ar.emailAddress || ar.identity?.displayName,
-                      ),
+                    reportDetailsResponse.data.attendanceRecords?.filter(
+                      (ar) => ar.emailAddress || ar.identity?.displayName,
+                    ),
                     hasAttendanceRecords = validAttendanceRecords.length > 0;
 
                   !hasAttendanceRecords &&
                     console.log(
                       'No valid attendance records found for report id: ' +
-                        report.id +
-                        JSON.stringify(reportDetailsResponse),
+                      report.id +
+                      JSON.stringify(reportDetailsResponse),
                     );
 
                   hasAttendanceRecords &&
                     console.log(
                       'Attendance records loaded: ' +
-                        report.id +
-                        JSON.stringify(reportDetailsResponse),
+                      report.id +
+                      JSON.stringify(reportDetailsResponse),
                     );
 
                   for (const attendanceRecord of validAttendanceRecords) {
@@ -179,11 +179,11 @@ async function processMeeting(meeting) {
           configuration,
 
           'Unable to load meeting with id and manager specified:  ' +
-            meetingTitle +
-            ' - ' +
-            userId +
-            ' ' +
-            meetingResponse.error,
+          meetingTitle +
+          ' - ' +
+          userId +
+          ' ' +
+          meetingResponse.error,
           jobName,
         );
         return meetingResponse.error;
@@ -210,24 +210,27 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
       userData && console.log('Loaded participant user data' + JSON.stringify(userData));
     }
 
-    const existingParticipant = await getParticipant(meetingFields.id, lowerEmail, lowerName);
+    const existingParticipant = await getParticipant(meetingFields.id, lowerEmail, lowerName),
+      emailAddress = attendanceRecord.emailAddress,
+      //ignore country info if EEA user
+      setCountry = userData && !emailAddress.toLowerCase().includes('@eea.europa.eu');
 
     if (!existingParticipant) {
       const record2Save = {
         fields: {
           Participantname: attendanceRecord.identity.displayName,
-          ...(userData && { Countries: userData.country }),
+          ...(setCountry && { Countries: userData.country }),
           MeetingtitleLookupId: meetingFields.id,
-          EMail: attendanceRecord.emailAddress,
+          EMail: emailAddress,
           Participated: true,
         },
       };
 
       const path =
-          auth.apiConfigWithSite.uri +
-          'lists/' +
-          configuration.MeetingParticipantsListId +
-          '/items',
+        auth.apiConfigWithSite.uri +
+        'lists/' +
+        configuration.MeetingParticipantsListId +
+        '/items',
         response = await provider.apiPost(path, record2Save);
 
       if (response.success) {
