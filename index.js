@@ -15,8 +15,6 @@ const meetingAttendanceProcessor = require('./src/meetingAttendanceProcessor'),
     obligationsProcessor = require('./src/obligationsProcessor'),
     userRemovalProcessor = require('./src/userRemovalProcessor');
 
-const loggingProcessor = require('./src/tempJobs/loggingProcessor');
-
 async function getConfiguration() {
     const configListId = process.env.CONFIGURATION_LIST_ID;
     let _configuration = {};
@@ -49,8 +47,6 @@ async function main() {
         process.env.RUN_REMOVE_USERS === 'true' && await userRemovalProcessor.processUserRemoval(configuration);
 
         process.env.RUN_OBLIGATIONS_JOB === 'true' && await obligationsProcessor.processObligations(configuration);
-
-        process.env.RUN_LOGGING_JOB === 'true' && await loggingProcessor.processLogs(configuration);
     }
 };
 

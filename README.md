@@ -44,7 +44,7 @@ THis is to capture a) Older meetings, which have not been captured by the script
     Config key: RUN_MEETING_ATTENDANCE_JOB
 
 ### Meeting fields job -  every 10 min
-This job updates several fields in the "Events list". It runs on all future meetings as well as those in the past 4 weeks. 
+This job updates several fields in the "Events list". It runs on all future meetings as well as those in the past 8 weeks. 
 This is to a) generate the "MeetingLink" from the ID for future meetings, and update the figures of participants, registrants and countries based on the "Participants list"
 Updates fields in the Events listÆ *MeetingLink, NoOfParticipants, NoOfRegistered, Countries* based on MeetingJoinId and information from participants list.
 This job can run very freqently
