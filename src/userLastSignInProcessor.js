@@ -32,6 +32,9 @@ async function processUserLastSignIn(config) {
       }
     }
 
+    //limit the no of users for testing purposes
+    users2Update = users2Update.slice(0, 5);
+
     if (users2Update.length > 0) {
       console.log('The following users will be updated.');
       users2Update.forEach((user) => {
@@ -54,11 +57,11 @@ async function processUserLastSignIn(config) {
 
 async function loadUsers(listId) {
   let path = encodeURI(
-      auth.apiConfigWithSite.uri +
-        'lists/' +
-        listId +
-        '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1',
-    ),
+    auth.apiConfigWithSite.uri +
+    'lists/' +
+    listId +
+    '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1',
+  ),
     result = [];
 
   while (path) {
