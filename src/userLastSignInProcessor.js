@@ -15,7 +15,9 @@ async function processUserLastSignIn(config) {
     await mappingHelper.initialize(configuration);
     await tagHelper.initialize(jobName, configuration);
 
+    console.log('Loading users');
     const users = await loadUsers(configuration.UserListId);
+    console.log('Loading sing in activity');
     const signInActivities = await loadSignInActivities();
     for (const user of users) {
       const userFields = user.fields,
@@ -33,7 +35,7 @@ async function processUserLastSignIn(config) {
     }
 
     //limit the no of users for testing purposes
-    users2Update = users2Update.slice(0, 5);
+    //users2Update = users2Update.slice(0, 5);
 
     if (users2Update.length > 0) {
       console.log('The following users will be updated.');

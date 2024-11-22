@@ -36,8 +36,9 @@ async function processUserRemoval(config) {
         users2Delete.push(user);
       }
     }
+
     //limit the no of users for testing purposes
-    users2Delete = users2Delete.slice(0, 2);
+    //users2Delete = users2Delete.slice(0, 2);
 
     if (users2Delete.length > 0) {
       console.log('The following users will be removed.');

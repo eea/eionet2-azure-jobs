@@ -1,4 +1,6 @@
-const processor = require('./userRemovalProcessor');
+const axios = require('axios'),
+  auth = require('./auth'),
+  processor = require('./userRemovalProcessor');
 
 jest.mock('axios');
 jest.mock('@azure/msal-node');
@@ -89,5 +91,52 @@ describe('userRemovalProcessor', () => {
       filterDate = new Date('2023-04-25'),
       lastSignInDate = new Date('2023-08-01');
     expect(processor.shouldRemoveUser(userData, activity, filterDate, lastSignInDate)).toBe(true);
+  });
+
+  test('processUserRemoval', () => {
+    axios.post.mockImplementation(() => Promise.resolve({ data: {} }));
+    axios.patch.mockImplementation(() => Promise.resolve({ data: {} }));
+    axios.get.mockImplementation((url) => {
+      if (url.includes('top=999')) {
+        return Promise.resolve({
+          data: {
+            value: [
+              {
+                createdDateTime: '2023-04-01',
+                fields: {
+                  id: '36',
+                  Title: 'REAL Ionel Ganea',
+                  Country: 'RO',
+                  LastSignInDate: undefined,
+                  ADUserId: 'ae40523c-d750-41f5-9873-6346b474e5fb',
+                },
+              },
+            ],
+          },
+        });
+      } else if (url.includes('users?select=id,displayName,signInActivity')) {
+        return Promise.resolve({
+          data: {
+            value: [
+              {
+                id: 'ae40523c-d750-41f5-9873-6346b474e5fb',
+                displayName: 'REAL Ionel Ganea',
+                signInActivity: {
+                  lastSignInDateTime: '2023-04-01',
+                },
+              },
+            ],
+          },
+        });
+      }
+    });
+
+    auth.getAccessToken.mockImplementation(() => {
+      return {
+        accessToken: {},
+      };
+    });
+
+    processor.processUserRemoval('').then((data) => expect(data).toEqual(undefined));
   });
 });
