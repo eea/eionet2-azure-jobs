@@ -13,7 +13,8 @@ const meetingAttendanceProcessor = require('./src/meetingAttendanceProcessor'),
     userMembershipsProcessor = require('./src/userMembershipProcessor'),
     removeUserTagsProcessor = require('./src/removeUserTagsProcessor'),
     obligationsProcessor = require('./src/obligationsProcessor'),
-    userRemovalProcessor = require('./src/userRemovalProcessor');
+    userRemovalProcessor = require('./src/userRemovalProcessor'),
+    userLastSignInProcessor = require('./src/userLastSignInProcessor');
 
 async function getConfiguration() {
     const configListId = process.env.CONFIGURATION_LIST_ID;
@@ -45,6 +46,7 @@ async function main() {
         process.env.RUN_USER_MEMBERSHIPS_JOB === 'true' && await userMembershipsProcessor.processUsers(configuration);
         process.env.RUN_REMOVE_USER_TAGS === 'true' && await removeUserTagsProcessor.processUsers(configuration);
         process.env.RUN_REMOVE_USERS === 'true' && await userRemovalProcessor.processUserRemoval(configuration);
+        process.env.RUN_LAST_SING_IN_DATE_JOB === 'true' && await userLastSignInProcessor.processUserLastSignIn(configuration);
 
         process.env.RUN_OBLIGATIONS_JOB === 'true' && await obligationsProcessor.processObligations(configuration);
     }
