@@ -78,6 +78,13 @@ Updates entire Reporting Obligations Table from ROD database.  https://rod.eione
     Config key : RUN_OBLIGATIONS_JOB
     ConfigurationListEntry: ReportingClientsUrl, ReportingInstrumentsUrl, ReportingObligationsUrl
 
+### Last sign in date job
+Updates the *LastSingInDate* field with the last time the user signed in based on signInActivity from GraphAPI. The date is related to any sign of the user in the tenant.
+**For the moment requires the beta endpoint of the Graph API**
+
+    Filters: SignedIn = 1
+    Config key : RUN_LAST_SING_IN_DATE_JOB
+
 ## On-demand jobs, to be run manually for specific cases
 
 ### User membership job - Helper job  - on demand
