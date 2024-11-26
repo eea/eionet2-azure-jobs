@@ -26,7 +26,7 @@ async function processUserLastSignIn(config) {
         const lastSignInDate = new Date(activity.signInActivity.lastSignInDateTime);
         if (
           !userFields.LastSignInDate ||
-          lastSignInDate.getTime() != new Date(userFields.LastSignInDate).getTime()
+          lastSignInDate.getTime() > new Date(userFields.LastSignInDate).getTime()
         ) {
           userFields.LastSignInDate = lastSignInDate;
           users2Update.push(user);
@@ -59,11 +59,11 @@ async function processUserLastSignIn(config) {
 
 async function loadUsers(listId) {
   let path = encodeURI(
-      auth.apiConfigWithSite.uri +
-        'lists/' +
-        listId +
-        '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1',
-    ),
+    auth.apiConfigWithSite.uri +
+    'lists/' +
+    listId +
+    '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1',
+  ),
     result = [];
 
   while (path) {
