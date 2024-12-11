@@ -66,6 +66,7 @@ async function getMeetingJoinInfo(meeting) {
   try {
     if (joinMeetingId) {
       const userId = await userHelper.getLookupADUserId(meeting.MeetingmanagerLookupId);
+      const adUser = await userHelper.getADUser(userId);
       if (userId) {
         const response = await provider.apiGet(
           auth.apiConfig.uri +
@@ -77,6 +78,14 @@ async function getMeetingJoinInfo(meeting) {
         );
         if (response.success && response.data.value && response.data.value.length > 0) {
           return response.data.value[0];
+        } else {
+          await logging.error(
+            configuration,
+            `Meeting link for ${meeting.Title} could not be generated. Check that the meeting organiser ${adUser?.mail} and meeting code are correct`,
+            jobName,
+            undefined,
+            adUser?.mail,
+          );
         }
       }
       return undefined;

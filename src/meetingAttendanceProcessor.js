@@ -170,21 +170,18 @@ async function processMeeting(meeting) {
             configuration,
             attendanceReportsResponse.error,
             jobName,
-            `Meeting ${meetingFields.Title} and organizer ${adUser?.mail} has wrong organizer specified.`,
+            `Could not load meeting participants for event  ${meetingTitle}. Meeting Organizer ${adUser?.mail} does not correspond to the meeting ID. Check that the meeting organiser is correct`,
+            adUser?.mail,
           );
           return false;
         }
       } else {
         await logging.error(
           configuration,
-
-          'Unable to load meeting with id and manager specified:  ' +
-            meetingTitle +
-            ' - ' +
-            userId +
-            ' ' +
-            meetingResponse.error,
+          `Unable to load meeting  ${meetingTitle}. Meeting Organizer ${adUser?.mail} does not correspond to the meeting ID. Check that the meeting organiser is correct`,
           jobName,
+          undefined,
+          adUser?.mail,
         );
         return meetingResponse.error;
       }

@@ -39,7 +39,7 @@ async function info(configuration, message, apiPath, data, jobName, action, affe
   }
 }
 
-async function error(configuration, error, jobName, message = undefined) {
+async function error(configuration, error, jobName, message, affectedUser) {
   console.log(error);
   const token = await auth.getAccessToken();
   const options = {
@@ -48,13 +48,20 @@ async function error(configuration, error, jobName, message = undefined) {
     },
   };
 
+  let innerMessage = message;
+  //missing index error
+  if (error.response?.data?.message?.includes('HonorNonIndexedQueriesWarningMayFailRandomly')) {
+    innerMessage = err.response?.data?.message;
+  }
+
   let fields = {
     fields: {
       ApplicationName: jobName || 'Eionet2-Azure-Jobs',
       ApiData: JSON.stringify(error),
-      Title: message ?? error.toString(),
+      Title: innerMessage ?? error.toString(),
       Logtype: 'Error',
       Timestamp: new Date(),
+      AffectedUser: affectedUser,
     },
   };
   const path = auth.apiConfigWithSite.uri + 'lists/' + configuration.LoggingListId + '/items';
