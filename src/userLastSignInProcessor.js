@@ -31,6 +31,9 @@ async function processUserLastSignIn(config) {
           userFields.LastSignInDate = lastSignInDate;
           users2Update.push(user);
         }
+      } else {
+        console.log(`User ${userFields.Title} - ${userFields.Email} has no sign in activity.`);
+        console.log(activity);
       }
     }
 
@@ -59,11 +62,11 @@ async function processUserLastSignIn(config) {
 
 async function loadUsers(listId) {
   let path = encodeURI(
-      auth.apiConfigWithSite.uri +
-        'lists/' +
-        listId +
-        '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1',
-    ),
+    auth.apiConfigWithSite.uri +
+    'lists/' +
+    listId +
+    '/items?$expand=fields&$top=999&$filter=fields/SignedIn eq 1',
+  ),
     result = [];
 
   while (path) {
