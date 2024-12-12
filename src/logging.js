@@ -51,7 +51,7 @@ async function error(configuration, error, jobName, message, affectedUser) {
   let innerMessage = message;
   //missing index error
   if (error.response?.data?.message?.includes('HonorNonIndexedQueriesWarningMayFailRandomly')) {
-    innerMessage = err.response?.data?.message;
+    innerMessage = error.response?.data?.message;
   }
 
   let fields = {
