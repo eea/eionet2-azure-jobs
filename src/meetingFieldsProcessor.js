@@ -5,7 +5,7 @@ const provider = require('./provider'),
   utils = require('./helpers/utils'),
   jobName = 'UpdateMeetingFields';
 
-let configuration = undefined,
+let configuration,
   //if set to true ignores filters and updates all meetings.
   _updateAll = false;
 
@@ -161,9 +161,9 @@ async function patchMeeting(meeting, meetingJoinInfo, participants) {
         registeredCount = participants.filter((p) => p.fields.Registered).length;
 
       const existingCountries = meetingFields.Countries?.length
-          ? meetingFields.Countries.sort().join(',')
+          ? meetingFields.Countries.sort((a, b) => a - b).join(',')
           : undefined,
-        newCountries = countries?.length ? countries.sort().join(',') : undefined;
+        newCountries = countries?.length ? countries.sort((a, b) => a - b).join(',') : undefined;
 
       if (
         meetingFields.MeetingLink != meetingJoinLink ||

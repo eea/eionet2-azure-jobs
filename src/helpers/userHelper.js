@@ -4,7 +4,8 @@ const logging = require('../logging'),
 
 let configuration, jobName;
 function initialize(job, config) {
-  (configuration = config), (jobName = job);
+  jobName = job;
+  configuration = config;
 }
 
 //Load AD user information

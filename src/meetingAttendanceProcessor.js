@@ -95,7 +95,7 @@ async function processMeeting(meeting) {
               return !processedReports.includes(report.id);
             });
             //process only attendance reports that are not stored on meeting record in sharepoint list
-            if (filteredReports && filteredReports.length) {
+            if (filteredReports?.length) {
               for (const report of filteredReports) {
                 const reportDetailsResponse = await provider.apiGet(
                   apiRoot +

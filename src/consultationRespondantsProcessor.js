@@ -124,7 +124,7 @@ async function getAllowedCountries(configuration) {
   const columns = response.data.value;
 
   const countryColumn = columns.find((column) => column.name === 'Respondants');
-  if (countryColumn && countryColumn.choice) {
+  if (countryColumn?.choice) {
     return countryColumn.choice.choices;
   }
 

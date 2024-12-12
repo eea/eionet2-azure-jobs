@@ -6,7 +6,8 @@ const countryMappingHelper = require('./countryMappingHelper');
 
 let configuration, jobName;
 async function initialize(job, config) {
-  (configuration = config), (jobName = job);
+  jobName = job;
+  configuration = config;
 
   await countryMappingHelper.initialize(configuration);
 }
