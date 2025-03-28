@@ -31,6 +31,7 @@ async function start() {
     if (meetingResponse.success) {
       const meeting = meetingResponse.data?.value?.[0];
       console.log(meeting.joinMeetingIdSettings.joinMeetingId);
+      console.log(`${meeting.startDateTime} - ${meeting.endDateTime}`);
       attendanceReportsResponse = await provider.apiGet(
         `${apiRoot}users/${userData.id}/onlineMeetings/${meeting.id}/attendanceReports`,
         false,
@@ -54,8 +55,8 @@ async function start() {
 
 async function loadEvents(userId) {
   let path = encodeURI(
-    `${auth.apiConfig.uri}users/${userId}/calendar/events?$filter= start/datetime ge '2025-02-15'`,
-  ),
+      `${auth.apiConfig.uri}users/${userId}/calendar/events?$filter= start/datetime ge '2025-02-15'`,
+    ),
     result = [];
 
   while (path) {
