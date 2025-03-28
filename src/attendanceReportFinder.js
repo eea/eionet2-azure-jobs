@@ -51,7 +51,9 @@ async function start() {
 }
 
 async function loadEvents(userId) {
-  let path = encodeURI(`${auth.apiConfig.uri}users/${userId}/calendar/events?$filter= start/datetime ge '2025-01-01'`),
+  let path = encodeURI(
+      `${auth.apiConfig.uri}users/${userId}/calendar/events?$filter= start/datetime ge '2025-01-01'`,
+    ),
     result = [];
 
   while (path) {
