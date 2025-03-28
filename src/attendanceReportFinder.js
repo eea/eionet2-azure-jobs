@@ -38,12 +38,15 @@ async function start() {
       if (attendanceReportsResponse.success) {
         const reports = attendanceReportsResponse.data?.value,
           configReport = reports.find((rp) => rp.id == config.attendanceReportId);
+        reports.forEach((r) => console.log(r.id));
         if (configReport) {
           console.log(
             `Attendance report found on event with meetingJoinId ${meeting.joinMeetingIdSettings.joinMeetingId}`,
           );
           console.log(`Total participants on report ${configReport.totalParticipantCount}`);
           break;
+        } else {
+          console.log(`Attendance report not found`);
         }
       }
     }
@@ -52,7 +55,7 @@ async function start() {
 
 async function loadEvents(userId) {
   let path = encodeURI(
-      `${auth.apiConfig.uri}users/${userId}/calendar/events?$filter= start/datetime ge '2025-01-01'`,
+      `${auth.apiConfig.uri}users/${userId}/calendar/events?$filter= start/datetime ge '2025-02-15'`,
     ),
     result = [];
 
