@@ -13,5 +13,5 @@ function capitalize(str) {
 }
 module.exports = {
   parseJoinMeetingId: parseJoinMeetingId,
-  capitalize: capitalize
+  capitalize: capitalize,
 };

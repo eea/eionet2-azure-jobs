@@ -17,7 +17,7 @@ async function processFlows(configuration) {
     for (const country of countries) {
       const result = await loadReportnetFlows(configuration, country);
 
-      result.forEach(item => item.country = country);
+      result.forEach((item) => (item.country = country));
 
       flows.push(...result);
       flowCount += result.length;
@@ -29,8 +29,12 @@ async function processFlows(configuration) {
       await saveFlow(configuration, flow);
     }
 
-    const flows2Remove = spFlows.map(spFlow => {
-      if (!flows.find(flow => flow.id == spFlow.fields.DataflowId && flow.country == spFlow.fields.Country))
+    const flows2Remove = spFlows.map((spFlow) => {
+      if (
+        !flows.find(
+          (flow) => flow.id == spFlow.fields.DataflowId && flow.country == spFlow.fields.Country,
+        )
+      )
         return spFlow;
     });
     for (const flow of flows2Remove) {
@@ -38,7 +42,6 @@ async function processFlows(configuration) {
     }
 
     console.log('Total number of data flows updated: ' + flowCount);
-
   } catch (error) {
     await logging.error(configuration, error, jobName);
     return error;
@@ -60,7 +63,7 @@ async function getCountries(configuration) {
 }
 
 async function loadReportnetFlows(configuration, country) {
-  const authorizationKey = process.env["REACT_APP_REPORTNET3_KEY"];
+  const authorizationKey = process.env['REACT_APP_REPORTNET3_KEY'];
 
   const pageSize = 20,
     dataflows = [];
@@ -71,8 +74,8 @@ async function loadReportnetFlows(configuration, country) {
       method: 'post',
       url: url,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     if (response?.data?.totalRecords > 0) {
@@ -80,22 +83,20 @@ async function loadReportnetFlows(configuration, country) {
       const noOfPages = Math.ceil(response.data.totalRecords / pageSize);
       let pageNo = 1;
 
-
       while (pageNo <= noOfPages) {
         url = `${configuration.Reportnet3DataflowUrl}${country}?asc=0&pageNum=${pageNo}&pageSize=${pageSize}&key=${authorizationKey}`;
         response = await axios.default.request({
           method: 'post',
           url: url,
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         });
 
         dataflows.push(...response.data.dataflows);
         pageNo++;
       }
     }
-
   } catch (error) {
     await logging.error(configuration, error, jobName);
   }
@@ -114,22 +115,27 @@ async function loadFlows(listId) {
   }
 }
 
-
 function mapFlows(flows, spFlows) {
   return flows.map((flow) => {
     const obligation = flow.obligation;
     let emails = [];
 
-    flow.representatives.forEach(rpr => {
-      emails.push(...rpr.leadReporters.map(lr => lr.email));
+    flow.representatives.forEach((rpr) => {
+      emails.push(...rpr.leadReporters.map((lr) => lr.email));
     });
     emails = [...new Set(emails.filter((e) => !!e))];
 
-    const releasedDates = flow.releasedDates.filter(rd => !!rd).sort((a, b) => a - b).map(rDate => new Date(rDate)),
+    const releasedDates = flow.releasedDates
+        .filter((rd) => !!rd)
+        .sort((a, b) => a - b)
+        .map((rDate) => new Date(rDate)),
       firstReleaseDate = releasedDates?.length ? releasedDates[0] : undefined,
-      lastReleaseDate = releasedDates?.length > 1 ? releasedDates[releasedDates.length - 1] : undefined;
+      lastReleaseDate =
+        releasedDates?.length > 1 ? releasedDates[releasedDates.length - 1] : undefined;
 
-    const spFlow = spFlows.find(spl => spl.fields.DataflowId == flow.id && spl.fields.Country == flow.country);
+    const spFlow = spFlows.find(
+      (spl) => spl.fields.DataflowId == flow.id && spl.fields.Country == flow.country,
+    );
     return {
       id: spFlow?.id,
       Country: flow.country,
@@ -140,13 +146,15 @@ function mapFlows(flows, spFlows) {
       ObligationURL: obligation?.obligationLink,
       LegalInstrumentName: obligation?.legalInstrument?.sourceAlias,
       LegalInstrumentURL: obligation?.legalInstrument?.legalInstrumentLink,
-      ...flow.deadlineDate && { DeadlineDate: new Date(flow.deadlineDate) },
+      ...(flow.deadlineDate && { DeadlineDate: new Date(flow.deadlineDate) }),
       Status: utils.capitalize(flow.status),
       ReporterEmails: emails.join(', '),
       FirstReleaseDate: firstReleaseDate,
       LastReleaseDate: lastReleaseDate,
-      DeliveryStatus: utils.capitalize(flow.reportingDatasets?.sort((a, b) => b.creationDate - a.creationDate)[0]?.status),
-    }
+      DeliveryStatus: utils.capitalize(
+        flow.reportingDatasets?.sort((a, b) => b.creationDate - a.creationDate)[0]?.status,
+      ),
+    };
   });
 }
 
@@ -173,7 +181,7 @@ async function removeFlow(configuration, spFlow) {
     path += `/${spFlow.id}`;
 
     await provider.apiDelete(path);
-    console.log(`Data flow ${spFlow.fields.DataflowName} was removed`)
+    console.log(`Data flow ${spFlow.fields.DataflowName} was removed`);
   }
 }
 

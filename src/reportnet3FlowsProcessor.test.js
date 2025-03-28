@@ -1,20 +1,20 @@
 const mockedMsal = {
-  ConfidentialClientApplication: jest.fn()
+  ConfidentialClientApplication: jest.fn(),
 };
 jest.mock('@azure/msal-node', () => mockedMsal);
 
 const mockedAuth = {
   apiConfigWithSite: {
-    uri: 'https://api.example.com/'
+    uri: 'https://api.example.com/',
   },
   getAccessToken: jest.fn().mockResolvedValue({
     accessToken: {},
-  })
+  }),
 };
 jest.mock('./auth', () => mockedAuth);
 
 const mockedLogging = {
-  error: jest.fn().mockResolvedValue(undefined)
+  error: jest.fn().mockResolvedValue(undefined),
 };
 jest.mock('./logging', () => mockedLogging);
 
@@ -27,14 +27,16 @@ const mockedProvider = {
 jest.mock('./provider', () => mockedProvider);
 
 const mockedUtils = {
-  capitalize: jest.fn(str => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '')
+  capitalize: jest.fn((str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '',
+  ),
 };
 jest.mock('./helpers/utils', () => mockedUtils);
 
 const mockedAxios = {
   default: {
-    request: jest.fn()
-  }
+    request: jest.fn(),
+  },
 };
 jest.mock('axios', () => mockedAxios);
 
@@ -59,7 +61,7 @@ describe('Reportnet3Flows', () => {
     const mockConfiguration = {
       UserListId: 'user-list-id',
       ReportnetFlowsListId: 'flows-list-id',
-      Reportnet3DataflowUrl: 'https://reportnet.example.com/dataflows/'
+      Reportnet3DataflowUrl: 'https://reportnet.example.com/dataflows/',
     };
 
     it('should process flows for all countries', async () => {
@@ -69,13 +71,15 @@ describe('Reportnet3Flows', () => {
         if (url.includes('/columns')) {
           return {
             data: {
-              value: [{
-                name: 'Country',
-                choice: {
-                  choices: mockCountries
-                }
-              }]
-            }
+              value: [
+                {
+                  name: 'Country',
+                  choice: {
+                    choices: mockCountries,
+                  },
+                },
+              ],
+            },
           };
         } else if (url.includes('items?$expand=fields&$top=999')) {
           return {
@@ -83,9 +87,9 @@ describe('Reportnet3Flows', () => {
             data: {
               value: [
                 { id: 'flow1', fields: { DataflowId: '1' } },
-                { id: 'flow2', fields: { DataflowId: '2' } }
-              ]
-            }
+                { id: 'flow2', fields: { DataflowId: '2' } },
+              ],
+            },
           };
         }
       });
@@ -101,42 +105,37 @@ describe('Reportnet3Flows', () => {
             obligationLink: 'https://example.com/obligation1',
             legalInstrument: {
               sourceAlias: 'Legal 1',
-              legalInstrumentLink: 'https://example.com/legal1'
-            }
+              legalInstrumentLink: 'https://example.com/legal1',
+            },
           },
           deadlineDate: '2023-12-31',
           status: 'active',
           representatives: [
             {
-              leadReporters: [
-                { email: 'test1@example.com' },
-                { email: 'test2@example.com' }
-              ]
-            }
+              leadReporters: [{ email: 'test1@example.com' }, { email: 'test2@example.com' }],
+            },
           ],
           releasedDates: ['2023-01-01', '2023-02-01'],
-          reportingDatasets: [
-            { status: 'complete', creationDate: 1672531200000 }
-          ]
-        }
+          reportingDatasets: [{ status: 'complete', creationDate: 1672531200000 }],
+        },
       ];
 
       mockedAxios.default.request.mockResolvedValue({
         data: {
           totalRecords: 1,
-          dataflows: mockReportnetFlows
-        }
+          dataflows: mockReportnetFlows,
+        },
       });
 
       // Mock saveFlow
       mockedProvider.apiPatch.mockResolvedValue({
         success: true,
-        data: { id: 'flow1-updated' }
+        data: { id: 'flow1-updated' },
       });
 
       mockedProvider.apiPost.mockResolvedValue({
         success: true,
-        data: { id: 'flow-new' }
+        data: { id: 'flow-new' },
       });
 
       // Call the function
@@ -155,7 +154,11 @@ describe('Reportnet3Flows', () => {
 
       const result = await reportnetFlows.processFlows(mockConfiguration);
 
-      expect(mockedLogging.error).toHaveBeenCalledWith(mockConfiguration, testError, 'Reportnet3Flows');
+      expect(mockedLogging.error).toHaveBeenCalledWith(
+        mockConfiguration,
+        testError,
+        'Reportnet3Flows',
+      );
       expect(result).toBe(testError);
     });
   });
