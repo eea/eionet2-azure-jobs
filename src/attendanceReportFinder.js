@@ -30,6 +30,7 @@ async function start() {
     );
     if (meetingResponse.success) {
       const meeting = meetingResponse.data?.value?.[0];
+      console.log(meeting.joinMeetingIdSettings.joinMeetingId);
       attendanceReportsResponse = await provider.apiGet(
         `${apiRoot}users/${userData.id}/onlineMeetings/${meeting.id}/attendanceReports`,
         false,
@@ -45,8 +46,6 @@ async function start() {
           );
           console.log(`Total participants on report ${configReport.totalParticipantCount}`);
           break;
-        } else {
-          console.log(`Attendance report not found`);
         }
       }
     }
@@ -55,8 +54,8 @@ async function start() {
 
 async function loadEvents(userId) {
   let path = encodeURI(
-      `${auth.apiConfig.uri}users/${userId}/calendar/events?$filter= start/datetime ge '2025-02-15'`,
-    ),
+    `${auth.apiConfig.uri}users/${userId}/calendar/events?$filter= start/datetime ge '2025-02-15'`,
+  ),
     result = [];
 
   while (path) {
