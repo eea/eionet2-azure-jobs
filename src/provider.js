@@ -1,7 +1,7 @@
 const axios = require('axios');
 const auth = require('./auth');
 
-async function apiGet(endpoint, skipEncoding) {
+async function apiGet(endpoint, skipEncoding, skipConsoleLog = false) {
   const token = await auth.getAccessToken();
   const options = {
     headers: {
@@ -19,7 +19,7 @@ async function apiGet(endpoint, skipEncoding) {
       data: response.data,
     };
   } catch (error) {
-    console.log(JSON.stringify(error));
+    !skipConsoleLog && console.log(JSON.stringify(error));
     return {
       success: false,
       error: error,

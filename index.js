@@ -15,7 +15,8 @@ const meetingAttendanceProcessor = require('./src/meetingAttendanceProcessor'),
     obligationsProcessor = require('./src/obligationsProcessor'),
     reportnet3FlowsProcessor = require('./src/reportnet3FlowsProcessor'),
     userRemovalProcessor = require('./src/userRemovalProcessor'),
-    userLastSignInProcessor = require('./src/userLastSignInProcessor');
+    userLastSignInProcessor = require('./src/userLastSignInProcessor'),
+    attendanceReportFinder = require('./src/attendanceReportFinder');
 
 async function getConfiguration() {
     const configListId = process.env.CONFIGURATION_LIST_ID;
@@ -51,6 +52,8 @@ async function main() {
 
         process.env.RUN_OBLIGATIONS_JOB === 'true' && await obligationsProcessor.processObligations(configuration);
         process.env.RUN_REPORTNET_FLOWS_JOB === 'true' && await reportnet3FlowsProcessor.processFlows(configuration);
+
+        process.env.RUN_ATTENDANCE_REPORT_FINDER === 'true' && await attendanceReportFinder.start(configuration);
     }
 };
 
