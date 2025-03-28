@@ -13,6 +13,7 @@ const meetingAttendanceProcessor = require('./src/meetingAttendanceProcessor'),
     userMembershipsProcessor = require('./src/userMembershipProcessor'),
     removeUserTagsProcessor = require('./src/removeUserTagsProcessor'),
     obligationsProcessor = require('./src/obligationsProcessor'),
+    reportnet3FlowsProcessor = require('./src/reportnet3FlowsProcessor'),
     userRemovalProcessor = require('./src/userRemovalProcessor'),
     userLastSignInProcessor = require('./src/userLastSignInProcessor');
 
@@ -49,6 +50,7 @@ async function main() {
         process.env.RUN_LAST_SING_IN_DATE_JOB === 'true' && await userLastSignInProcessor.processUserLastSignIn(configuration);
 
         process.env.RUN_OBLIGATIONS_JOB === 'true' && await obligationsProcessor.processObligations(configuration);
+        process.env.RUN_REPORTNET_FLOWS_JOB === 'true' && await reportnet3FlowsProcessor.processFlows(configuration);
     }
 };
 

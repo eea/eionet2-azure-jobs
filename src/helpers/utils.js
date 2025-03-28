@@ -6,6 +6,12 @@ function parseJoinMeetingId(meetingId) {
 
   return joinMeetingId;
 }
+
+function capitalize(str) {
+  const result = str?.toLowerCase().replace(/_/g, ' ');
+  return result.charAt(0).toUpperCase() + result.slice(1);
+}
 module.exports = {
   parseJoinMeetingId: parseJoinMeetingId,
+  capitalize: capitalize
 };
