@@ -36,7 +36,7 @@ async function processFlows(configuration) {
         )
       )
         return spFlow;
-    });
+    }).filter(df => !!df);
     for (const flow of flows2Remove) {
       await removeFlow(configuration, flow);
     }
@@ -126,9 +126,9 @@ function mapFlows(flows, spFlows) {
     emails = [...new Set(emails.filter((e) => !!e))];
 
     const releasedDates = flow.releasedDates
-        .filter((rd) => !!rd)
-        .sort((a, b) => a - b)
-        .map((rDate) => new Date(rDate)),
+      .filter((rd) => !!rd)
+      .sort((a, b) => a - b)
+      .map((rDate) => new Date(rDate)),
       firstReleaseDate = releasedDates?.length ? releasedDates[0] : undefined,
       lastReleaseDate =
         releasedDates?.length > 1 ? releasedDates[releasedDates.length - 1] : undefined;
