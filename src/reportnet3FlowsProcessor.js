@@ -161,17 +161,16 @@ function mapFlows(flows, spFlows) {
 }
 
 async function saveFlow(configuration, flow) {
-  let path = `${auth.apiConfigWithSite.uri}lists/${configuration.ReportnetFlowsListId}/items`,
-    response;
+  let path = `${auth.apiConfigWithSite.uri}lists/${configuration.ReportnetFlowsListId}/items`;
   if (flow.id) {
     path += `/${flow.id}`;
     delete flow.id;
 
-    response = await provider.apiPatch(path, {
+    await provider.apiPatch(path, {
       fields: flow,
     });
   } else {
-    response = await provider.apiPost(path, {
+    await provider.apiPost(path, {
       fields: flow,
     });
   }

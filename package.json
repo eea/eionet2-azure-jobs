@@ -26,6 +26,7 @@
     "lint": "node_modules/eslint/bin/eslint.js --max-warnings=0 'src/**/*.{js,jsx}'",
     "lint:fix": "node_modules/eslint/bin/eslint.js --fix 'src/**/*.{js,jsx}'",
     "test": "jest --coverage",
+    "format": "npm run stylelint:fix & npm run prettier:fix & npm run lint:fix",
     "pc": "npm run stylelint:fix & npm run prettier:fix & npm run lint:fix & npm run test"
   },
   "pre-commit": [

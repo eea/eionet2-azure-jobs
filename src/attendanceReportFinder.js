@@ -1,10 +1,7 @@
-const logging = require('./logging'),
-  provider = require('./provider'),
+const provider = require('./provider'),
   auth = require('./auth'),
   userHelper = require('./helpers/userHelper'),
   jobName = 'UserRemoval';
-
-const tagHelper = require('./helpers/tagHelper');
 
 async function start() {
   const config = require('./attendanceReportFinder.json'),
@@ -32,7 +29,7 @@ async function start() {
       const meeting = meetingResponse.data?.value?.[0];
       console.log(meeting.joinMeetingIdSettings.joinMeetingId);
       console.log(`${meeting.startDateTime} - ${meeting.endDateTime}`);
-      attendanceReportsResponse = await provider.apiGet(
+      const attendanceReportsResponse = await provider.apiGet(
         `${apiRoot}users/${userData.id}/onlineMeetings/${meeting.id}/attendanceReports`,
         false,
         true,
@@ -43,7 +40,8 @@ async function start() {
         reports.forEach((r) => console.log(r.id));
         if (configReport) {
           console.log(
-            `Attendance report found on event with meetingJoinId ${meeting.joinMeetingIdSettings.joinMeetingId}`,
+            `${jobName}
+              Attendance report found on event with meetingJoinId ${meeting.joinMeetingIdSettings.joinMeetingId}`,
           );
           console.log(`Total participants on report ${configReport.totalParticipantCount}`);
           break;
