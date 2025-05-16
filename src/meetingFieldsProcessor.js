@@ -5,7 +5,7 @@ const provider = require('./provider'),
   utils = require('./helpers/utils'),
   jobName = 'UpdateMeetingFields';
 
-let configuration = undefined,
+let configuration,
   //if set to true ignores filters and updates all meetings.
   _updateAll = false;
 
@@ -26,9 +26,9 @@ async function processMeetings(config, updateAll) {
 }
 
 async function loadMeetings(meetingListId) {
-  //get meetings from last 4 weeks to current date
+  //get meetings from last 8 weeks to current date
   const currentDate = new Date(),
-    last4Weeks = new Date(currentDate.setDate(currentDate.getDate() - 4 * 7)),
+    last4Weeks = new Date(currentDate.setDate(currentDate.getDate() - 8 * 7)),
     filterString = _updateAll
       ? ''
       : "&$filter=fields/Meetingstart ge '" + last4Weeks.toDateString() + "'";
@@ -66,6 +66,7 @@ async function getMeetingJoinInfo(meeting) {
   try {
     if (joinMeetingId) {
       const userId = await userHelper.getLookupADUserId(meeting.MeetingmanagerLookupId);
+      const adUser = await userHelper.getADUser(userId);
       if (userId) {
         const response = await provider.apiGet(
           auth.apiConfig.uri +
@@ -77,6 +78,14 @@ async function getMeetingJoinInfo(meeting) {
         );
         if (response.success && response.data.value && response.data.value.length > 0) {
           return response.data.value[0];
+        } else {
+          await logging.error(
+            configuration,
+            `Meeting link for ${meeting.Title} could not be generated. Check that the meeting organiser ${adUser?.mail} and meeting code are correct`,
+            jobName,
+            undefined,
+            adUser?.mail,
+          );
         }
       }
       return undefined;
@@ -152,9 +161,9 @@ async function patchMeeting(meeting, meetingJoinInfo, participants) {
         registeredCount = participants.filter((p) => p.fields.Registered).length;
 
       const existingCountries = meetingFields.Countries?.length
-          ? meetingFields.Countries.sort().join(',')
+          ? meetingFields.Countries.sort((a, b) => a - b).join(',')
           : undefined,
-        newCountries = countries?.length ? countries.sort().join(',') : undefined;
+        newCountries = countries?.length ? countries.sort((a, b) => a - b).join(',') : undefined;
 
       if (
         meetingFields.MeetingLink != meetingJoinLink ||

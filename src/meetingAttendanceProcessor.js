@@ -95,7 +95,7 @@ async function processMeeting(meeting) {
               return !processedReports.includes(report.id);
             });
             //process only attendance reports that are not stored on meeting record in sharepoint list
-            if (filteredReports && filteredReports.length) {
+            if (filteredReports?.length) {
               for (const report of filteredReports) {
                 const reportDetailsResponse = await provider.apiGet(
                   apiRoot +
@@ -170,21 +170,18 @@ async function processMeeting(meeting) {
             configuration,
             attendanceReportsResponse.error,
             jobName,
-            `Meeting ${meetingFields.Title} and organizer ${adUser?.mail} has wrong organizer specified.`,
+            `Could not load meeting participants for event  ${meetingTitle}. Meeting Organizer ${adUser?.mail} does not correspond to the meeting ID. Check that the meeting organiser is correct`,
+            adUser?.mail,
           );
           return false;
         }
       } else {
         await logging.error(
           configuration,
-
-          'Unable to load meeting with id and manager specified:  ' +
-            meetingTitle +
-            ' - ' +
-            userId +
-            ' ' +
-            meetingResponse.error,
+          `Unable to load meeting ${meetingTitle}. Meeting Organizer ${adUser?.mail} does not correspond to the meeting ID. Check that the meeting organiser is correct.`,
           jobName,
+          undefined,
+          adUser?.mail,
         );
         return meetingResponse.error;
       }
@@ -210,15 +207,18 @@ async function processAttendanceRecord(meetingFields, attendanceRecord) {
       userData && console.log('Loaded participant user data' + JSON.stringify(userData));
     }
 
-    const existingParticipant = await getParticipant(meetingFields.id, lowerEmail, lowerName);
+    const existingParticipant = await getParticipant(meetingFields.id, lowerEmail, lowerName),
+      emailAddress = attendanceRecord.emailAddress,
+      //ignore country info if EEA user
+      setCountry = userData && !emailAddress.toLowerCase().includes('@eea.europa.eu');
 
     if (!existingParticipant) {
       const record2Save = {
         fields: {
           Participantname: attendanceRecord.identity.displayName,
-          ...(userData && { Countries: userData.country }),
+          ...(setCountry && { Countries: userData.country }),
           MeetingtitleLookupId: meetingFields.id,
-          EMail: attendanceRecord.emailAddress,
+          EMail: emailAddress,
           Participated: true,
         },
       };

@@ -90,29 +90,23 @@ async function processUser(user) {
                 userFields.Email,
               );
               await applyTags(userFields);
-              await patchSPUser(
-                userFields.id,
-                {
-                  SignedIn: isSignedIn,
-                  SignedInDate: signedInDate,
-                },
-                configuration,
-              );
+              await patchSPUser(userFields.id, {
+                SignedIn: isSignedIn,
+                SignedInDate: signedInDate,
+              });
             }
-          } else {
-            if (response.error) {
-              const status = response.error.response?.status;
-              //request throttling by graph api
-              if (status == 429) {
-                const retryAfter = response.error.response.headers['retry-after'] || 0;
-                console.log(
-                  'Request throttled by Graph API. Retrying in ' + retryAfter + ' seconds.',
-                );
+          } else if (response.error) {
+            const status = response.error.response?.status;
+            //request throttling by graph api
+            if (status == 429) {
+              const retryAfter = response.error.response.headers['retry-after'] || 0;
+              console.log(
+                'Request throttled by Graph API. Retrying in ' + retryAfter + ' seconds.',
+              );
 
-                retry = true;
-                retryCount++;
-                await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
-              }
+              retry = true;
+              retryCount++;
+              await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
             }
           }
         }

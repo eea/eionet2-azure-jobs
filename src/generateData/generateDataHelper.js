@@ -8,7 +8,7 @@ async function getCountries(configuration) {
   const columns = response.data.value;
 
   const countryColumn = columns.find((column) => column.name === 'Country');
-  if (countryColumn && countryColumn.choice) {
+  if (countryColumn?.choice) {
     return countryColumn.choice.choices;
   }
 
@@ -41,7 +41,7 @@ async function getConsultationsGroups(configuration) {
   const columns = response.data.value;
 
   const groupsColumn = columns.find((column) => column.name === 'EionetGroups');
-  if (groupsColumn && groupsColumn.choice) {
+  if (groupsColumn?.choice) {
     return groupsColumn.choice.choices;
   }
 }
@@ -53,7 +53,7 @@ async function getMeetingsGroups(configuration) {
   const columns = response.data.value;
 
   const groupsColumn = columns.find((column) => column.name === 'Group');
-  if (groupsColumn && groupsColumn.choice) {
+  if (groupsColumn?.choice) {
     return groupsColumn.choice.choices;
   }
 }
@@ -65,7 +65,7 @@ async function getUsersGroups(configuration) {
   const columns = response.data.value;
 
   const groupsColumn = columns.find((column) => column.name === 'Membership');
-  if (groupsColumn && groupsColumn.choice) {
+  if (groupsColumn?.choice) {
     return groupsColumn.choice.choices;
   }
 }
