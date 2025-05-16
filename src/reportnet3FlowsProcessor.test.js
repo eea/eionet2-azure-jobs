@@ -143,7 +143,7 @@ describe('Reportnet3Flows', () => {
 
       // Assertions
       expect(mockedProvider.apiGet).toHaveBeenCalledTimes(2);
-      expect(mockedProvider.apiPost).toHaveBeenCalledTimes(4);
+      expect(mockedProvider.apiPost).toHaveBeenCalledTimes(0);
       expect(mockedLogging.error).not.toHaveBeenCalled();
       expect(result).toBeUndefined(); // Successful execution returns undefined
     });

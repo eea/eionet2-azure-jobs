@@ -15,7 +15,9 @@ async function processFlows(configuration) {
       flows = [];
 
     for (const country of countries) {
-      const result = await loadReportnetFlows(configuration, country);
+      let result = await loadReportnetFlows(configuration, country);
+
+      result = result.filter((r) => r.status?.toLowerCase() == 'draft' && r.showPublicInfo == true);
 
       result.forEach((item) => (item.country = country));
 
@@ -24,7 +26,7 @@ async function processFlows(configuration) {
       console.log(`Number of data flows loaded for country ${country} :` + result.length);
     }
 
-    const flows2Save = mapFlows(flows, spFlows);
+    const flows2Save = mapFlows(configuration, flows, spFlows);
     for (const flow of flows2Save) {
       await saveFlow(configuration, flow);
     }
@@ -107,17 +109,35 @@ async function loadReportnetFlows(configuration, country) {
 }
 
 async function loadFlows(listId) {
-  const response = await provider.apiGet(
-    `${auth.apiConfigWithSite.uri}lists/${listId}/items?$expand=fields&$top=999`,
-  );
-  if (response.success) {
-    return response.data.value;
-  } else {
-    return [];
+  let path = encodeURI(
+      `${auth.apiConfigWithSite.uri}lists/${listId}/items?$expand=fields&$top=999`,
+    ),
+    result = [];
+
+  while (path) {
+    const response = await provider.apiGet(path, true);
+    if (response.success) {
+      result = result.concat(response.data.value);
+      path = response.data['@odata.nextLink'];
+    } else {
+      path = undefined;
+    }
   }
+
+  return result;
 }
 
-function mapFlows(flows, spFlows) {
+function computeStatus(flow) {
+  if (!flow.releasable) return 'Closed';
+
+  return 'Open';
+}
+
+function getDate(date) {
+  return new Date(new Date(date).toLocaleString('en', { timeZone: 'GMT' }));
+}
+
+function mapFlows(configuration, flows, spFlows) {
   return flows.map((flow) => {
     const obligation = flow.obligation;
     let emails = [];
@@ -130,7 +150,7 @@ function mapFlows(flows, spFlows) {
     const releasedDates = flow.releasedDates
         .filter((rd) => !!rd)
         .sort((a, b) => a - b)
-        .map((rDate) => new Date(rDate)),
+        .map((rDate) => getDate(rDate)),
       firstReleaseDate = releasedDates?.length ? releasedDates[0] : undefined,
       lastReleaseDate =
         releasedDates?.length > 1 ? releasedDates[releasedDates.length - 1] : undefined;
@@ -143,13 +163,13 @@ function mapFlows(flows, spFlows) {
       Country: flow.country,
       DataflowId: flow.id,
       DataflowName: flow.name,
-      DataflowURL: flow.dataflowLink,
+      DataflowURL: `${configuration.Reportnet2DataflowPublicUrl}${flow.id}`,
       ObligationName: obligation?.oblTitle,
       ObligationURL: obligation?.obligationLink,
       LegalInstrumentName: obligation?.legalInstrument?.sourceAlias,
       LegalInstrumentURL: obligation?.legalInstrument?.legalInstrumentLink,
-      ...(flow.deadlineDate && { DeadlineDate: new Date(flow.deadlineDate) }),
-      Status: utils.capitalize(flow.status),
+      ...(flow.deadlineDate && { DeadlineDate: getDate(flow.deadlineDate) }),
+      Status: utils.capitalize(computeStatus(flow)),
       ReporterEmails: emails.join(', '),
       FirstReleaseDate: firstReleaseDate,
       LastReleaseDate: lastReleaseDate,

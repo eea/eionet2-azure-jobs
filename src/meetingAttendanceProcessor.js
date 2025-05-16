@@ -178,7 +178,7 @@ async function processMeeting(meeting) {
       } else {
         await logging.error(
           configuration,
-          `Unable to load meeting  ${meetingTitle}. Meeting Organizer ${adUser?.mail} does not correspond to the meeting ID. Check that the meeting organiser is correct`,
+          `Unable to load meeting ${meetingTitle}. Meeting Organizer ${adUser?.mail} does not correspond to the meeting ID. Check that the meeting organiser is correct.`,
           jobName,
           undefined,
           adUser?.mail,
