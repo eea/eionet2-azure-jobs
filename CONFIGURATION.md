@@ -14,3 +14,4 @@ Configuration keys
 ### [1.3.7]
     - Reportnet2DataflowPublicUrl - base URL for dataflow that opens from the list.
     - Reportnet3DataflowUrl - base URL for loading Reportnet3 dataflows (should not include query parameters)
+    - ReportnetFlowsListId - id of the sharepoint list the will contain the dataflows
