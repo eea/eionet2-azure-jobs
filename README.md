@@ -85,6 +85,13 @@ Updates the *LastSingInDate* field with the last time the user signed in based o
     Filters: SignedIn = 1
     Config key : RUN_LAST_SING_IN_DATE_JOB
 
+### Reportnet 3 flows
+Loads and saves in Sharepoint the reportnet 3 flows from Reportnet API. The API is configured in the configuration list. The new flows are inserted, the existing one are updated and the flows that are no longer returned by API are
+removed from the list.
+
+    Filters: none
+    Config key : RUN_REPORTNET_FLOWS_JOB
+
 ## On-demand jobs, to be run manually for specific cases
 
 ### User membership job - Helper job  - on demand

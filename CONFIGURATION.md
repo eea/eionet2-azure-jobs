@@ -10,3 +10,8 @@ Configuration keys
 Configuration keys
     - UserRemovalLastSignInDateTime - Users with no activity after this date can be removed by the user removal job
     - RemoveNonSignedInUserNoOfDays - Number of days after which users that have not finalized the sign in process can be remove by user removal job
+
+### [1.3.7]
+    - Reportnet2DataflowPublicUrl - base URL for dataflow that opens from the list.
+    - Reportnet3DataflowUrl - base URL for loading Reportnet3 dataflows (should not include query parameters)
+    - ReportnetFlowsListId - id of the sharepoint list the will contain the dataflows
