@@ -4,6 +4,8 @@
 
 
 
+## This repo is deprecated in favor of azure functions (eionet2-azure-functions), no longer maintained
+
 ## Getting started
 
 The application is build as a JavaScript application that is scheduled to be executed automatically at the designated interval through Azure (like a "cron" job).
